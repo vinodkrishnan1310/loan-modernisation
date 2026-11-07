@@ -1,0 +1,13 @@
+{
+  "label": "null_handling",
+  "confidence": 0.86,
+  "explanation": "The product has a flat late fee but no percentage fee and no cap. Legacy charges the flat fee; the new code charges zero, which suggests the missing percentage is treated as zero in a comparison that should ignore it.",
+  "evidence": [
+    "legacy LATE_FEE 250.00 versus new 0.00 on the same date",
+    "product has a flat fee and no percentage fee in the reference data"
+  ],
+  "suggested_fix": "When one of the fee components is missing, use the other instead of treating the missing one as zero.",
+  "related_rule_ids": [
+    "RULE-01"
+  ]
+}

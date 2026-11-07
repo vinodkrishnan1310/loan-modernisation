@@ -1,0 +1,12 @@
+{
+  "label": "real_defect",
+  "confidence": 0.95,
+  "explanation": "The new code never posts the late fee after the grace period. The legacy ledger has the fee and the new ledger does not, and no other label explains a missing fee.",
+  "evidence": [
+    "legacy LATE_FEE is present and the new ledger has no late fee entry"
+  ],
+  "suggested_fix": "Charge the late fee once the grace period has passed, as the fee rule states.",
+  "related_rule_ids": [
+    "RULE-01"
+  ]
+}

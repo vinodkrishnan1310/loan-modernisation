@@ -1,0 +1,13 @@
+{
+  "label": "day_count_convention",
+  "confidence": 0.88,
+  "explanation": "Interest for February is higher in the legacy output. The product uses a 30/360 basis, and the new code appears to count the actual days in February instead.",
+  "evidence": [
+    "February interest differs while the rate and principal agree",
+    "product day count is 30360"
+  ],
+  "suggested_fix": "Count February as 30 days when the product day count is 30/360.",
+  "related_rule_ids": [
+    "RULE-04"
+  ]
+}

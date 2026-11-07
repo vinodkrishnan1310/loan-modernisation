@@ -1,0 +1,12 @@
+{
+  "label": "rounding",
+  "confidence": 0.91,
+  "explanation": "The two amounts differ by one cent on the same interest calculation, which is what happens when the rounding step is applied at a different point.",
+  "evidence": [
+    "legacy interest 103.73 and new interest 103.72 on the same date"
+  ],
+  "suggested_fix": "Round the accrual the same way the legacy code does, at the same step.",
+  "related_rule_ids": [
+    "RULE-02"
+  ]
+}

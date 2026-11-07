@@ -1,0 +1,12 @@
+{
+  "label": "rounding",
+  "confidence": 0.42,
+  "explanation": "The amounts are close, but the case also changes a date, so rounding is only a guess.",
+  "evidence": [
+    "amounts differ by a small amount and a date differs too"
+  ],
+  "suggested_fix": "Compare the rounding step and the date rule before changing either one.",
+  "related_rule_ids": [
+    "RULE-02"
+  ]
+}
