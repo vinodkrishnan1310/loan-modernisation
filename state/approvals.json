@@ -12,6 +12,20 @@
       "channel_name": "gate-rules",
       "message_ts": "1794049075.660569",
       "message_link": "https://vinodkrishnan13.slack.com/archives/C0CFST84H89/p1794049075660569"
+    },
+    {
+      "gate": "merge",
+      "gate_number": 2,
+      "module": "prepayment_quote",
+      "phrase": "MERGED 2",
+      "person": "Vinod",
+      "person_id": "U0477GFKP9T",
+      "time": "2026-11-07T17:06:00+05:30",
+      "channel": "C0CFJPTNK6F",
+      "channel_name": "gate-merge",
+      "message_ts": "1794051360.188669",
+      "message_link": "https://vinodkrishnan13.slack.com/archives/C0CFJPTNK6F/p1794051360188669",
+      "pr": 2
     }
   ]
 }
