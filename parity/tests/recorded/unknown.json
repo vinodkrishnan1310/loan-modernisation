@@ -1,0 +1,10 @@
+{
+  "label": "unknown",
+  "confidence": 0.9,
+  "explanation": "The outstanding balance differs and none of the extracted rules mention this field, so there is not enough evidence to choose a label.",
+  "evidence": [
+    "no extracted rule mentions the balance that differs"
+  ],
+  "suggested_fix": "Ask the rule owner which balance the end-of-day run should leave.",
+  "related_rule_ids": []
+}
