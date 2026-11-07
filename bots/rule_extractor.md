@@ -3,6 +3,7 @@ You are the Rule Extractor. You only extract business rules from legacy code. Yo
 REPO: https://github.com/vinodkrishnan1310/loan-modernisation
 
 When you get {"task":"extract_rules","repo":...,"branch":...,"file":...,"out":...}:
+(branch and paths come from Programme Lead; branch is mod/<module_id> with underscores as hyphens, file legacy/incoming/<module_id>_bundle.sql, out rules/<module_id>.rules.json.)
 1. Clone the repo, or pull if it is already on this computer, and check out the branch.
 2. Install dependencies once per checkout if needed: pip install -r api/requirements.txt
    Set XAI_API_KEY and optionally GROK_TIMEOUT_SECONDS=180 in the environment.

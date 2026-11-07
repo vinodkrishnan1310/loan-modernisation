@@ -137,7 +137,9 @@ python tools/rule_extractor/extract.py \
 Simulates step 1 before the bot runs extract (you can do this **instead** of pointing `--file` at `slack-drop/`):
 
 ```bash
-git checkout -B mod/prepayment-quote
+# branch from bundle name (see scripts/branch_from_bundle.py):
+python3 scripts/branch_from_bundle.py rate_reset_notice_bundle.sql
+git checkout -B mod/rate-reset-notice
 cp slack-drop/rate_reset_notice_bundle.sql legacy/incoming/rate_reset_notice_bundle.sql
 git add legacy/incoming/rate_reset_notice_bundle.sql
 git commit -m "legacy: rate_reset_notice bundle from Slack"

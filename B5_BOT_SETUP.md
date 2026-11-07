@@ -34,7 +34,7 @@ Enable GitHub and shell/code tools so specialists can clone, run Python, commit,
 ## Smoke tests (before live extract)
 
 1. In `#loan-modernisation`: `@Programme Lead ping Parity with {"task":"ping"}` — expect a reply in-thread.
-2. Attach `slack-drop/prepayment_quote_bundle.sql`, say `prepayment_quote`, @ Lead — Lead should save to `legacy/incoming/prepayment_quote_bundle.sql` on `mod/prepayment-quote` and call Rule Extractor.
+2. Attach `slack-drop/prepayment_quote_bundle.sql`, say `prepayment_quote`, @ Lead — Lead derives branch `mod/prepayment-quote` from the filename and calls Rule Extractor.
 3. Reply `ok` to a gate request — Lead should refuse. Reply exact `APPROVE RULES prepayment_quote` in `#gate-rules` as an approver — Lead should accept.
 
 ## Module 2 rehearsal order
@@ -42,7 +42,9 @@ Enable GitHub and shell/code tools so specialists can clone, run Python, commit,
 ```bash
 bash deploy/reset_programme_demo.sh --api
 git checkout main && git pull
+# delete the branch Lead used last time, e.g.:
 git push origin --delete mod/prepayment-quote 2>/dev/null || true
+git push origin --delete mod/rate-reset-notice 2>/dev/null || true
 ```
 
 In Slack (do **not** run `extract.py` locally):

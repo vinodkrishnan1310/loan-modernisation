@@ -40,7 +40,7 @@ Programme demo reset done.
 Before the live Slack run:
   - Optional backup: cp rules/*.rules.json presenter/ before reset next time
   - Fresh thread in #loan-modernisation
-  - Push a clean branch when Lead saves legacy/incoming (e.g. mod/prepayment-quote)
+  - Delete old mod/* branches on origin if replaying (branch = mod/<bundle basename without _bundle.sql, _ → -)
 
 Replay order: see MODULE2_DEMO_STEPS.md and "Slack playbook (module 2)" in that file.
 EOF
