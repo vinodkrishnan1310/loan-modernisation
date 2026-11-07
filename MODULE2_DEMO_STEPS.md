@@ -50,6 +50,9 @@ python tools/rule_extractor/extract.py \
   --file slack-drop/prepayment_quote_bundle.sql \
   --out rules/prepayment_quote.rules.json
 
+# Progress and retries print to stderr, e.g. [grok 08:15:01Z] attempt 1/3 started
+# GROK_VERBOSE=0 silences them. GROK_TIMEOUT_SECONDS=180 overrides the 120s default.
+
 python tools/rule_extractor/extract.py \
   --file slack-drop/rate_reset_notice_bundle.sql \
   --out rules/rate_reset_notice.rules.json
@@ -86,9 +89,9 @@ python parity/parity_module2.py --proc quote --module fallback/second-pass/prepa
 python parity/parity_module2.py --proc notice --module fallback/second-pass/rate_reset_notice.py
 ```
 
-### E. Slack bots
+### E. Slack bots (B5)
 
-Paste updated `bots/*.md` (especially `programme_lead.md`, `converter.md`, `parity.md`). Set `REPO` and approver names.
+Follow **`B5_BOT_SETUP.md`**: create five Grok bots, paste `bots/*.md`, fill approver names in `programme_lead.md`, run smoke tests, then the Slack playbook below.
 
 ## Slack attachments for live extract
 
@@ -98,3 +101,62 @@ Paste updated `bots/*.md` (especially `programme_lead.md`, `converter.md`, `pari
 | rate_reset_notice | `slack-drop/rate_reset_notice_bundle.sql` |
 
 Mention the **module name** in the thread so the Lead uses the right row in `MODULES`.
+
+## Reset before rehearsal or live demo
+
+Loans + programme artefacts (rules, evidence, `legacy/incoming`, `state/`):
+
+```bash
+bash deploy/reset_programme_demo.sh --api
+```
+
+Save backups **before** reset if you want fallbacks:
+
+```bash
+mkdir -p presenter/rule-backups
+cp rules/prepayment_quote.rules.json presenter/rule-backups/ 2>/dev/null || true
+```
+
+After reset, the Slack playbook starts with **no** `rules/*.json` on disk (same as first attach).
+
+## Slack playbook (module 2) — what you do vs what bots do
+
+### Rehearse notice extract (second proc) — terminal = Rule Extractor
+
+After `reset_programme_demo.sh`, or on a branch with no notice rules yet:
+
+```bash
+source .venv/bin/activate && set -a && source .env && set +a
+python tools/rule_extractor/extract.py \
+  --file slack-drop/rate_reset_notice_bundle.sql \
+  --out rules/rate_reset_notice.rules.json
+```
+
+### Rehearse Lead “file landed in repo” (optional once per module)
+
+Simulates step 1 before the bot runs extract (you can do this **instead** of pointing `--file` at `slack-drop/`):
+
+```bash
+git checkout -B mod/prepayment-quote
+cp slack-drop/rate_reset_notice_bundle.sql legacy/incoming/rate_reset_notice_bundle.sql
+git add legacy/incoming/rate_reset_notice_bundle.sql
+git commit -m "legacy: rate_reset_notice bundle from Slack"
+# git push -u origin mod/prepayment-quote   # when bots need GitHub
+
+python tools/rule_extractor/extract.py \
+  --file legacy/incoming/rate_reset_notice_bundle.sql \
+  --out rules/rate_reset_notice.rules.json
+git add rules/rate_reset_notice.rules.json
+git commit -m "rules: rate_reset_notice extract"
+```
+
+### Live demo (both procs, Slack-only narrative)
+
+1. `bash deploy/reset_programme_demo.sh --api`
+2. Thread: attach **prepayment** + `@Lead prepayment_quote` → Gate 1 approve quote
+3. Same thread (or step 2): attach **notice** + `@Lead rate_reset_notice` → Gate 1 approve notice  
+   *(Until Lead START is module-aware, you may run extract on the bot machine or Plan B: you run extract when Lead asks.)*
+4. Lead → Converter (one `run_d_module2_conversion.md`) after **both** approvals
+5. Parity ×2 → merge → release → tag → watcher
+
+You already completed quote extract; for a **full replay**, reset then run **both** extracts again (or both Slack drops with bots).
