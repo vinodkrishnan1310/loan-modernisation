@@ -41,11 +41,9 @@ Enable GitHub and shell/code tools so specialists can clone, run Python, commit,
 
 ```bash
 bash deploy/reset_programme_demo.sh --api
-git checkout main && git pull
-# delete the branch Lead used last time, e.g.:
-git push origin --delete mod/prepayment-quote 2>/dev/null || true
-git push origin --delete mod/rate-reset-notice 2>/dev/null || true
 ```
+
+This resets loans, local rules/evidence, and deletes **all** `mod/*` branches on origin and locally (use `--no-git` to skip branch cleanup).
 
 In Slack (do **not** run `extract.py` locally):
 

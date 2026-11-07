@@ -107,7 +107,7 @@ Mention the **module name** in the thread so the Lead uses the right row in `MOD
 Loans + programme artefacts (rules, evidence, `legacy/incoming`, `state/`):
 
 ```bash
-bash deploy/reset_programme_demo.sh --api
+bash deploy/reset_programme_demo.sh --api   # also deletes origin/mod/* branches ( --no-git to skip )
 ```
 
 Save backups **before** reset if you want fallbacks:
