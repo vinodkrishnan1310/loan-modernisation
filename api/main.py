@@ -47,6 +47,37 @@ class EodResponse(BaseModel):
     state: LoanState
 
 
+class QuoteRequest(BaseModel):
+    quote_date: dt.date
+
+
+class QuoteResponse(BaseModel):
+    engine: str
+    loan_id: int
+    quote_date: dt.date
+    principal: Decimal
+    interest: Decimal
+    penal: Decimal
+    fees: Decimal
+    prepay_fee: Decimal
+    gst: Decimal
+    total: Decimal
+    valid_until: dt.date
+
+
+class NoticeRequest(BaseModel):
+    as_of: dt.date
+    window_days: int = 30
+
+
+class NoticeResponse(BaseModel):
+    engine: str
+    as_of: dt.date
+    window_days: int
+    posted: int
+    skipped: int
+
+
 class Health(BaseModel):
     status: str
     engine: str
@@ -73,6 +104,30 @@ def run_engine(conn, loan_id: int, as_of: dt.date) -> None:
         run_eod(conn, loan_id, as_of)
     else:
         raise HTTPException(status_code=500, detail=f"unknown ENGINE {ENGINE!r}")
+
+
+def run_quote(conn, loan_id: int, quote_date: dt.date) -> dict:
+    if ENGINE == "legacy":
+        return conn.execute("SELECT * FROM lms.sp_prepayment_quote(%s::int, %s::date)", (loan_id, quote_date)).fetchone()
+    if ENGINE == "service":
+        try:
+            from engine_service import run_prepayment_quote   # added by the conversion PR
+        except ImportError:
+            raise HTTPException(status_code=501, detail="service engine is not built yet")
+        return run_prepayment_quote(conn, loan_id, quote_date)
+    raise HTTPException(status_code=500, detail=f"unknown ENGINE {ENGINE!r}")
+
+
+def run_notices(conn, as_of: dt.date, window_days: int) -> dict:
+    if ENGINE == "legacy":
+        return conn.execute("CALL lms.sp_rate_reset_notice(%s::date, %s::int)", (as_of, window_days)).fetchone()
+    if ENGINE == "service":
+        try:
+            from engine_service import run_rate_reset_notice  # added by the conversion PR
+        except ImportError:
+            raise HTTPException(status_code=501, detail="service engine is not built yet")
+        return run_rate_reset_notice(conn, as_of, window_days)
+    raise HTTPException(status_code=500, detail=f"unknown ENGINE {ENGINE!r}")
 
 
 @app.get("/health", response_model=Health)
@@ -104,3 +159,28 @@ def run_loan_eod(loan_id: int, body: EodRequest):
     if state is None:
         raise HTTPException(status_code=404, detail="loan not found")
     return EodResponse(engine=ENGINE, as_of=body.as_of, ledger_entries_added=after - before, state=state)
+
+
+@app.post("/loans/{loan_id}/prepayment-quote", response_model=QuoteResponse)
+def prepayment_quote(loan_id: int, body: QuoteRequest):
+    with connect() as conn:
+        try:
+            r = run_quote(conn, loan_id, body.quote_date)
+        except psycopg.errors.RaiseException as e:          # LMS-001, LMS-002, LMS-003, LMS-021
+            raise HTTPException(status_code=422, detail=str(e).splitlines()[0])
+    return QuoteResponse(engine=ENGINE, loan_id=loan_id, quote_date=body.quote_date, principal=r["o_principal"],
+                         interest=r["o_interest"], penal=r["o_penal"], fees=r["o_fees"],
+                         prepay_fee=r["o_prepay_fee"], gst=r["o_gst"], total=r["o_total"],
+                         valid_until=r["o_valid_until"])
+
+
+@app.post("/rate-reset-notices", response_model=NoticeResponse)
+def rate_reset_notices(body: NoticeRequest):
+    """Runs over every active floating-rate loan in the database."""
+    with connect() as conn:
+        try:
+            r = run_notices(conn, body.as_of, body.window_days)
+        except psycopg.errors.RaiseException as e:          # LMS-005, LMS-031
+            raise HTTPException(status_code=422, detail=str(e).splitlines()[0])
+    return NoticeResponse(engine=ENGINE, as_of=body.as_of, window_days=body.window_days,
+                          posted=r["p_posted"], skipped=r["p_skipped"])

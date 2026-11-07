@@ -2,7 +2,10 @@
 
 Legacy: Postgres PL/pgSQL loan end-of-day procedure (stand-in for Oracle). Target: Python service behind the same FastAPI contract.
 
+**Module 2 (prepayment quote + rate reset notice):** see `README_MODULE2.md` and **`MODULE2_DEMO_STEPS.md`** (Strategy A terminal script).
+
 Start the stack:   docker compose up -d --build        (db on 5433, api on 8000, /docs for the demo)
+Apply module 2 SQL: bash deploy/apply_module2_sql.sh   (once on existing db volumes)
 Switch engine:     ENGINE=service docker compose up -d --build api
 Reset demo loans:  bash deploy/reset_demo.sh
 Watch for tags:    bash deploy/watch_release.sh        (run from a separate clone)

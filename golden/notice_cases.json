@@ -1,0 +1,826 @@
+[
+ {
+  "case_id": "N01",
+  "scenario": "only_fixed_loans",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FIXED",
+     "fixed_rate_pct": "9.0000",
+     "benchmark_code": null,
+     "spread_pct": null,
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    },
+    {
+     "loan_id": "8002",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FIXED",
+     "fixed_rate_pct": "9.0000",
+     "benchmark_code": null,
+     "spread_pct": null,
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-20",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 0,
+   "skipped": 0,
+   "ledger": []
+  }
+ },
+ {
+  "case_id": "N02",
+  "scenario": "change_exactly_025",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-20",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 1,
+   "skipped": 0,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2024-10-10",
+     "entry_type": "RESET_NOTICE",
+     "amount": "9.25",
+     "note": "reset 2024-10-10 from 9.0000 to 9.2500"
+    }
+   ]
+  }
+ },
+ {
+  "case_id": "N03",
+  "scenario": "change_too_small",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-03-01",
+   "window_days": 60,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 0,
+   "skipped": 1,
+   "ledger": []
+  }
+ },
+ {
+  "case_id": "N04",
+  "scenario": "reset_outside_window",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-08-01",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 0,
+   "skipped": 0,
+   "ledger": []
+  }
+ },
+ {
+  "case_id": "N05",
+  "scenario": "notice_day_rolls",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-07-13",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-30",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 1,
+   "skipped": 0,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2024-10-14",
+     "entry_type": "RESET_NOTICE",
+     "amount": "9.25",
+     "note": "reset 2024-10-13 from 9.0000 to 9.2500"
+    }
+   ]
+  }
+ },
+ {
+  "case_id": "N06",
+  "scenario": "benchmark_on_reset_day",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-07-09",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-25",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 1,
+   "skipped": 0,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2024-10-09",
+     "entry_type": "RESET_NOTICE",
+     "amount": "9.25",
+     "note": "reset 2024-10-09 from 9.0000 to 9.2500"
+    }
+   ]
+  }
+ },
+ {
+  "case_id": "N07",
+  "scenario": "npa_loan_skipped",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "NPA"
+    }
+   ],
+   "as_of": "2024-09-20",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 0,
+   "skipped": 1,
+   "ledger": []
+  }
+ },
+ {
+  "case_id": "N08",
+  "scenario": "already_noticed",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-20",
+   "window_days": 30,
+   "prior_ledger": [
+    {
+     "loan_id": 8001,
+     "entry_date": "2024-10-14",
+     "entry_type": "RESET_NOTICE",
+     "amount": "9.04",
+     "note": "reset 2024-10-10 from 8.7900 to 9.0400"
+    }
+   ]
+  },
+  "legacy_output": {
+   "posted": 0,
+   "skipped": 1,
+   "ledger": []
+  }
+ },
+ {
+  "case_id": "N09",
+  "scenario": "window_too_large",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-20",
+   "window_days": 120,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "error": "LMS-031 window 120 days is outside 1 to 90",
+   "ledger": []
+  }
+ },
+ {
+  "case_id": "N10",
+  "scenario": "floating_without_bench",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": null,
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-20",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "error": "LMS-005 floating loan 8001 has no benchmark",
+   "ledger": []
+  }
+ },
+ {
+  "case_id": "N11",
+  "scenario": "mixed_book",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    },
+    {
+     "loan_id": "8002",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-07-09",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    },
+    {
+     "loan_id": "8003",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "NPA"
+    },
+    {
+     "loan_id": "8004",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "CLOSED",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    },
+    {
+     "loan_id": "8005",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-01-10",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FIXED",
+     "fixed_rate_pct": "9.0000",
+     "benchmark_code": null,
+     "spread_pct": null,
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-20",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 2,
+   "skipped": 1,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2024-10-10",
+     "entry_type": "RESET_NOTICE",
+     "amount": "9.25",
+     "note": "reset 2024-10-10 from 9.0000 to 9.2500"
+    },
+    {
+     "loan_id": "8002",
+     "entry_date": "2024-10-09",
+     "entry_type": "RESET_NOTICE",
+     "amount": "9.25",
+     "note": "reset 2024-10-09 from 9.0000 to 9.2500"
+    }
+   ]
+  }
+ },
+ {
+  "case_id": "N12",
+  "scenario": "no_spread",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-07-09",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": null,
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-25",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 1,
+   "skipped": 0,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2024-10-09",
+     "entry_type": "RESET_NOTICE",
+     "amount": "6.75",
+     "note": "reset 2024-10-09 from 6.5000 to 6.7500"
+    }
+   ]
+  }
+ },
+ {
+  "case_id": "N13",
+  "scenario": "six_month_reset",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-04-09",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "6",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-09-25",
+   "window_days": 30,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 1,
+   "skipped": 0,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2024-10-09",
+     "entry_type": "RESET_NOTICE",
+     "amount": "9.25",
+     "note": "reset 2024-10-09 from 9.0000 to 9.2500"
+    }
+   ]
+  }
+ },
+ {
+  "case_id": "N14",
+  "scenario": "month_end_30th",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-07-31",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2025-04-30",
+   "window_days": 10,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 1,
+   "skipped": 0,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2025-04-30",
+     "entry_type": "RESET_NOTICE",
+     "amount": "8.75",
+     "note": "reset 2025-04-30 from 9.2500 to 8.7500"
+    }
+   ]
+  }
+ },
+ {
+  "case_id": "N15",
+  "scenario": "month_end_leap",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "MH",
+     "disb_date": "2024-02-29",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "6",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2025-08-28",
+   "window_days": 5,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 1,
+   "skipped": 0,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2025-08-29",
+     "entry_type": "RESET_NOTICE",
+     "amount": "8.75",
+     "note": "reset 2025-08-29 from 9.2500 to 8.7500"
+    }
+   ]
+  }
+ },
+ {
+  "case_id": "N16",
+  "scenario": "holiday_notice_day",
+  "inputs": {
+   "loans": [
+    {
+     "loan_id": "8001",
+     "customer_ref": "GEN",
+     "product_code": "HL-STD",
+     "branch_state": "KA",
+     "disb_date": "2024-08-01",
+     "principal_disbursed": "1000000.00",
+     "rate_type": "FLOATING",
+     "fixed_rate_pct": null,
+     "benchmark_code": "REPO",
+     "spread_pct": "2.5000",
+     "reset_months": "3",
+     "tenor_months": "60",
+     "emi": "1.00",
+     "status": "ACTIVE",
+     "last_run_date": null,
+     "principal_outstanding": "1000000.00",
+     "accrued_interest": "0",
+     "accrued_penal": "0",
+     "fees_outstanding": "0",
+     "advance_balance": "0",
+     "asset_class": "STANDARD"
+    }
+   ],
+   "as_of": "2024-10-20",
+   "window_days": 15,
+   "prior_ledger": []
+  },
+  "legacy_output": {
+   "posted": 1,
+   "skipped": 0,
+   "ledger": [
+    {
+     "loan_id": "8001",
+     "entry_date": "2024-11-02",
+     "entry_type": "RESET_NOTICE",
+     "amount": "9.25",
+     "note": "reset 2024-11-01 from 9.0000 to 9.2500"
+    }
+   ]
+  }
+ }
+]
