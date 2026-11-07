@@ -1,6 +1,6 @@
 {
   "module": "prepayment_quote",
-  "stage": "awaiting_merge",
+  "stage": "releasing",
   "branch": "mod/prepayment-quote",
   "incoming": "legacy/incoming/prepayment_quote_bundle.sql",
   "rules": "rules/prepayment_quote.rules.json",
@@ -23,7 +23,10 @@
   },
   "pr": 2,
   "pr_url": "https://github.com/vinodkrishnan1310/loan-modernisation/pull/2",
-  "pr_merged": false,
+  "pr_merged": true,
+  "merge_commit": "834cd35de4aabc650f5c810a00108510b0851c9b",
+  "merged_at": "2026-11-07T17:08:48+05:30",
+  "merged_by": "vinodkrishnan1310",
   "conversion_commit": "df663e4da167500198720840a4a27a6b7a7bee94",
   "parity": {
     "matched": 18,
@@ -40,6 +43,6 @@
     "message_ts": "1794051360.188669",
     "message_link": "https://vinodkrishnan13.slack.com/archives/C0CFJPTNK6F/p1794051360188669",
     "pr": 2,
-    "pr_merged": false
+    "pr_merged": true
   }
 }
