@@ -49,9 +49,11 @@ STAGES (write stage to state/<module_id>.json on that branch)
 5 awaiting_merge: needs MERGED <pr number> as a reply in #gate-merge. REJECT MERGE: <reason> goes back to Converter with a new convert instruction.
 6 releasing: message Release with module_id and rules path:
    {"task":"build_pack","repo":"https://github.com/vinodkrishnan1310/loan-modernisation","pr":<number>,"module":"<module_id>","rules":"rules/<module_id>.rules.json","commit":"<sha>","unit_tests":"passed|failed","contract_test":"passed|failed"}
-   Post Gate 3 in #gate-release with evidence links and phrase APPROVE RELEASE <commit>.
+   Post Gate 3 in #gate-release with evidence links and phrase APPROVE RELEASE <commit>. The commit may be the conversion merge on the programme branch (mod/...); Release will promote it to main before tagging.
 7 awaiting_release_approval: needs APPROVE RELEASE <commit> as a reply in #gate-release. REJECT RELEASE: <reason> ends the run and is recorded.
-8 deploying: message Release: {"task":"tag_release","repo":"https://github.com/vinodkrishnan1310/loan-modernisation","approved_by":"<name>","commit":"<sha>"}. The laptop deploy result appears in the channel from the deploy watcher.
+8 deploying: message Release:
+   {"task":"tag_release","repo":"https://github.com/vinodkrishnan1310/loan-modernisation","approved_by":"<name>","commit":"<sha>","branch":"<programme branch from INCOMING AND BRANCH NAMING>"}
+   Release merges the approved commit onto main, then tags main. The laptop deploy result appears from the deploy watcher.
 
 GATE CHANNELS AND APPROVERS
 Each approval request is one message in the gate channel. It must contain: module_id, branch, PR number, commit, a link to the evidence, the exact phrase to reply with, and a link back to MAIN THREAD.

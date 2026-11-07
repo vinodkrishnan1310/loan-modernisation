@@ -72,6 +72,8 @@ set -a && source .env && set +a
 bash deploy/watch_release.sh
 ```
 
+After a **module-2-only** conversion, `ENGINE=service` has `run_prepayment_quote` but not `run_eod`. The watcher defaults to **`WATCH_SMOKE=auto`**: tries EOD on 9002; on HTTP 501 “not built yet”, smokes **prepayment quote on 9003** instead. Set `WATCH_SMOKE=quote` to skip EOD entirely.
+
 ---
 
 ## 1. Branch naming (derived from bundle file)
@@ -182,24 +184,32 @@ Lead → Parity:
 
 ### 3.5 Gate 2 — merge
 
-1. Review PR on GitHub; **merge to `main`**.
+1. Review and **merge the conversion PR** (typically into the programme branch `mod/<module>`).
 2. In `#gate-merge`, reply on Lead’s message:
 
 ```text
 MERGED <N>
 ```
 
+You do **not** need to merge to `main` manually. **Release** promotes on Gate 3 (see below).
+
 ### 3.6 Release
 
 Lead → Release `build_pack` for `prepayment_quote`.
 
-Gate 3 in `#gate-release`:
+Gate 3 in `#gate-release` — use the **approved conversion merge commit** (may be on `mod/*` only):
 
 ```text
-APPROVE RELEASE <commit_sha_on_main>
+APPROVE RELEASE <merge_commit_sha>
 ```
 
-Lead → Release `tag_release` → watcher deploys `ENGINE=service`, posts to Slack if webhook set.
+Lead → Release `tag_release` with `commit` + programme `branch`. Release runs `deploy/promote_to_main.sh` then `deploy/release.sh`; watcher deploys `ENGINE=service`.
+
+Manual promote (debug only):
+
+```bash
+bash deploy/promote_to_main.sh <commit> mod/prepayment-quote
+```
 
 ### 3.7 Show cutover
 

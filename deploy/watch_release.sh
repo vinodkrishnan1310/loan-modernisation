@@ -13,6 +13,7 @@
 # Settings (environment): INTERVAL seconds between checks (10), API_URL (http://localhost:8000),
 #   SLACK_WEBHOOK_URL (optional) a Slack incoming webhook; if set, every deploy result is posted there,
 #   DB_RESET_CMD command that re-creates the smoke-test loan (default: deploy/reset_demo.sh)
+#   WATCH_SMOKE for ENGINE=service: eod | quote | auto (default auto — EOD 9002, else prepayment 9003)
 #
 # The whole script sits inside main() and ends with `exit`, so bash has read all of it before
 # `git checkout` replaces this file underneath it.
@@ -22,7 +23,39 @@ main() {
   local INTERVAL="${INTERVAL:-10}"
   local API_URL="${API_URL:-http://localhost:8000}"
   local RESET_CMD="${DB_RESET_CMD:-bash deploy/reset_demo.sh}"
+  local WATCH_SMOKE="${WATCH_SMOKE:-auto}"
   local STATE=deploy/.last_deployed LOG=deploy/deploy.log RESULT=deploy/last_result.json
+  local SMOKE_OUT=/tmp/smoke_out.json
+
+  smoke_eod() {
+    curl -s -o "$SMOKE_OUT" -w '%{http_code}' -X POST "$API_URL/loans/9002/eod" \
+      -H 'content-type: application/json' -d '{"as_of":"2024-03-31"}'
+  }
+
+  smoke_quote() {
+    curl -s -o "$SMOKE_OUT" -w '%{http_code}' -X POST "$API_URL/loans/9003/prepayment-quote" \
+      -H 'content-type: application/json' -d '{"quote_date":"2024-06-15"}'
+  }
+
+  smoke_service() {
+    local code label
+    case "$WATCH_SMOKE" in
+      quote) code="$(smoke_quote)"; label="prepayment quote 9003"; echo "$code:$label"; return ;;
+      eod)   code="$(smoke_eod)"; label="loan eod 9002"; echo "$code:$label"; return ;;
+      auto)
+        code="$(smoke_eod)"
+        if [ "$code" = "200" ]; then echo "$code:loan eod 9002"; return; fi
+        if [ "$code" = "501" ] && grep -q 'service engine is not built yet' "$SMOKE_OUT" 2>/dev/null; then
+          code="$(smoke_quote)"
+          echo "$code:prepayment quote 9003 (fallback)"; return
+        fi
+        echo "$code:loan eod 9002"; return
+        ;;
+      *)
+        log "unknown WATCH_SMOKE=$WATCH_SMOKE"; echo "000:invalid"; return
+        ;;
+    esac
+  }
 
   log() { echo "$(date -u +%FT%TZ) $*" | tee -a "$LOG"; }
 
@@ -83,18 +116,24 @@ main() {
     fi
 
     $RESET_CMD >/dev/null 2>&1 || { log "could not reset smoke loan"; write_result "$tag" "$engine" failed "smoke reset failed"; return 1; }
-    local code
-    code="$(curl -s -o /tmp/smoke_out.json -w '%{http_code}' -X POST "$API_URL/loans/9002/eod" \
-            -H 'content-type: application/json' -d '{"as_of":"2024-03-31"}')"
+    local code smoke_meta label
+    if [ "$engine" = legacy ]; then
+      code="$(smoke_eod)"
+      label="loan eod 9002"
+    else
+      smoke_meta="$(smoke_service)"
+      code="${smoke_meta%%:*}"
+      label="${smoke_meta#*:}"
+    fi
     if [ "$code" != "200" ]; then
-      log "smoke call returned HTTP $code: $(cat /tmp/smoke_out.json)"
-      write_result "$tag" "$engine" failed "smoke HTTP $code, reverted to legacy"
+      log "smoke ($label) returned HTTP $code: $(cat "$SMOKE_OUT" 2>/dev/null)"
+      write_result "$tag" "$engine" failed "smoke HTTP $code ($label), reverted to legacy"
       [ "$engine" = service ] && revert_to_legacy; return 1
     fi
 
     echo "$tag" > "$STATE"
-    log "deployed $tag, ENGINE=$engine, smoke call OK"
-    write_result "$tag" "$engine" deployed "smoke call OK"
+    log "deployed $tag, ENGINE=$engine, smoke OK ($label)"
+    write_result "$tag" "$engine" deployed "smoke OK ($label)"
   }
 
   log "watching for release-* and rollback-* tags every ${INTERVAL}s"

@@ -9,6 +9,7 @@ Apply module 2 SQL: bash deploy/apply_module2_sql.sh   (once on existing db volu
 Switch engine:     ENGINE=service docker compose up -d --build api
 Reset demo loans:  bash deploy/reset_demo.sh
 Reset programme: bash deploy/reset_programme_demo.sh --api   # loans, artefacts, delete origin/mod/* branches
+Promote to main:  bash deploy/promote_to_main.sh <commit> [mod/branch]   # before tag, or via Release tag_release
 Watch for tags:    bash deploy/watch_release.sh        (run from a separate clone)
 Tag a release:     bash deploy/release.sh release "approved by <name>"
 Contract test:     cd api && pytest tests
