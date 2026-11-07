@@ -39,11 +39,13 @@ if $reset_git; then
   git fetch --prune origin 2>/dev/null || echo "warn: git fetch origin failed (network/auth?); skipping remote deletes" >&2
 
   while IFS= read -r branch; do
+    branch="${branch#"${branch%%[![:space:]]*}"}"
+    branch="${branch%"${branch##*[![:space:]]}"}"
     [ -n "$branch" ] || continue
     name="${branch#origin/}"
     echo "  delete remote $name"
-    git push origin --delete "$name" 2>/dev/null || echo "    warn: could not delete origin/$name" >&2
-  done < <(git branch -r --list 'origin/mod/*' 2>/dev/null || true)
+    git push origin --delete "$name" || echo "    warn: could not delete origin/$name" >&2
+  done < <(git for-each-ref --format='%(refname:short)' refs/remotes/origin/mod/ 2>/dev/null || true)
 
   while IFS= read -r branch; do
     branch="${branch#\*}"
