@@ -1,0 +1,36 @@
+{
+  "module": "loan_eod",
+  "rules": [
+    {
+      "id": "RULE-01",
+      "title": "A fee row is selected",
+      "kind": "fee",
+      "statement": "The procedure selects a fee amount.",
+      "source": {
+        "file": "proc.sql",
+        "start": 1,
+        "end": 1
+      },
+      "confidence": 0.9,
+      "notes": null
+    }
+  ],
+  "contradictions": [
+    {
+      "comment_source": {
+        "file": "proc.sql",
+        "start": 3,
+        "end": 3
+      },
+      "code_source": {
+        "file": "proc.sql",
+        "start": 1,
+        "end": 1
+      },
+      "description": "The comment says the fee is waived. The code selects a fee."
+    }
+  ],
+  "open_questions": [
+    "Is the fee meant to be waived?"
+  ]
+}
