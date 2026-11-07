@@ -1,0 +1,151 @@
+{
+ "products": [
+  {
+   "product_code": "AL-ST",
+   "product_name": "Auto Loan Short Term",
+   "day_count": "ACT360",
+   "grace_days": 0,
+   "penal_rate_pct": "2.500",
+   "late_fee_flat": "250.00",
+   "late_fee_pct": null,
+   "late_fee_cap": null,
+   "prepay_fee_pct": "1.500",
+   "npa_dpd": 90
+  },
+  {
+   "product_code": "BL-MSM",
+   "product_name": "Business Loan MSME",
+   "day_count": "ACT365",
+   "grace_days": 7,
+   "penal_rate_pct": "3.000",
+   "late_fee_flat": null,
+   "late_fee_pct": "0.750",
+   "late_fee_cap": "10000.00",
+   "prepay_fee_pct": "2.000",
+   "npa_dpd": 90
+  },
+  {
+   "product_code": "HL-STD",
+   "product_name": "Home Loan Standard",
+   "day_count": "ACT365",
+   "grace_days": 5,
+   "penal_rate_pct": "2.000",
+   "late_fee_flat": "500.00",
+   "late_fee_pct": "0.500",
+   "late_fee_cap": "5000.00",
+   "prepay_fee_pct": "2.000",
+   "npa_dpd": 90
+  },
+  {
+   "product_code": "PL-FLX",
+   "product_name": "Personal Loan Flex",
+   "day_count": "30360",
+   "grace_days": 3,
+   "penal_rate_pct": "3.500",
+   "late_fee_flat": "300.00",
+   "late_fee_pct": "1.000",
+   "late_fee_cap": "2500.00",
+   "prepay_fee_pct": "2.000",
+   "npa_dpd": 90
+  }
+ ],
+ "benchmark_rates": [
+  {
+   "benchmark_code": "REPO",
+   "effective_date": "2022-12-07",
+   "rate_pct": "6.2500"
+  },
+  {
+   "benchmark_code": "REPO",
+   "effective_date": "2023-02-08",
+   "rate_pct": "6.5000"
+  },
+  {
+   "benchmark_code": "REPO",
+   "effective_date": "2024-02-08",
+   "rate_pct": "6.5000"
+  },
+  {
+   "benchmark_code": "REPO",
+   "effective_date": "2024-10-09",
+   "rate_pct": "6.7500"
+  },
+  {
+   "benchmark_code": "REPO",
+   "effective_date": "2025-04-09",
+   "rate_pct": "6.2500"
+  },
+  {
+   "benchmark_code": "REPO",
+   "effective_date": "2025-10-09",
+   "rate_pct": "5.7500"
+  }
+ ],
+ "holidays": [
+  {
+   "hdate": "2024-01-26",
+   "state_code": "ALL",
+   "description": "Republic Day"
+  },
+  {
+   "hdate": "2024-03-25",
+   "state_code": "ALL",
+   "description": "Holi"
+  },
+  {
+   "hdate": "2024-08-15",
+   "state_code": "ALL",
+   "description": "Independence Day"
+  },
+  {
+   "hdate": "2024-10-02",
+   "state_code": "ALL",
+   "description": "Gandhi Jayanti"
+  },
+  {
+   "hdate": "2024-11-01",
+   "state_code": "KA",
+   "description": "Kannada Rajyotsava"
+  },
+  {
+   "hdate": "2024-12-25",
+   "state_code": "ALL",
+   "description": "Christmas"
+  },
+  {
+   "hdate": "2025-01-26",
+   "state_code": "ALL",
+   "description": "Republic Day"
+  },
+  {
+   "hdate": "2025-03-14",
+   "state_code": "ALL",
+   "description": "Holi"
+  },
+  {
+   "hdate": "2025-04-14",
+   "state_code": "ALL",
+   "description": "Ambedkar Jayanti"
+  },
+  {
+   "hdate": "2025-08-15",
+   "state_code": "ALL",
+   "description": "Independence Day"
+  },
+  {
+   "hdate": "2025-10-02",
+   "state_code": "ALL",
+   "description": "Gandhi Jayanti"
+  },
+  {
+   "hdate": "2025-11-01",
+   "state_code": "KA",
+   "description": "Kannada Rajyotsava"
+  },
+  {
+   "hdate": "2025-12-25",
+   "state_code": "ALL",
+   "description": "Christmas"
+  }
+ ]
+}

@@ -1,0 +1,18 @@
+---
+description: How code in this repo calls the Grok API
+alwaysApply: true
+---
+- Call Grok with the OpenAI Python SDK: `OpenAI(api_key=os.environ["XAI_API_KEY"], base_url="https://api.x.ai/v1")`.
+- The model name comes from the environment variable `GROK_MODEL`. Default `grok-4.7`.
+- Always use structured output:
+  `response_format={"type": "json_schema", "json_schema": {"name": <name>, "schema": <loaded from schemas/>, "strict": True}}`.
+  Load the schema from the file in `schemas/`. Never keep a second copy in code.
+- After parsing, validate the result again with `jsonschema`. If it fails, treat the call as failed.
+- `temperature=0`. Timeout 30 seconds. Two retries with backoff. After that raise `GrokUnavailable`
+  and let the caller send the item to a human. Never guess a value.
+- Grok reads and explains. Plain code decides. Never ask Grok to compute a number, diff two values, or approve anything.
+  Whether an item needs a human is computed in plain code: confidence below 0.80, or the label is `real_defect` or `unknown`.
+- Any line range Grok cites must be checked by plain code against the file. A citation that does not exist is an error.
+- The key comes from the environment only. No keys in code, tests, logs, fixtures or PR text.
+- Tests never use the network. Use recorded responses in a `tests/recorded/` folder, handed in through a small client interface.
+  One optional live test marked `@pytest.mark.live` runs only when `XAI_API_KEY` is set.

@@ -1,0 +1,45 @@
+{
+  "case_id": "EXAMPLE-1",
+  "scenario": "invented example for the schema",
+  "product": {
+    "product_code": "AL-ST",
+    "day_count": "ACT360",
+    "rate_type": "FIXED"
+  },
+  "diff": {
+    "path": "ledger.first_divergence",
+    "legacy": {
+      "entry_date": "2024-03-10",
+      "entry_type": "LATE_FEE",
+      "amount": "250.00",
+      "note": "inst 2"
+    },
+    "new": {
+      "entry_date": "2024-03-10",
+      "entry_type": "LATE_FEE",
+      "amount": "0.00",
+      "note": "inst 2"
+    }
+  },
+  "legacy_context": [
+    {
+      "entry_date": "2024-03-09",
+      "entry_type": "CLASS_CHANGE",
+      "amount": "1.00",
+      "note": "STANDARD to SMA0"
+    }
+  ],
+  "other_diffs": [
+    {
+      "path": "summary.fees_charged",
+      "legacy": "295.00",
+      "new": "0.00"
+    }
+  ],
+  "relevant_rules": [
+    {
+      "id": "RULE-01",
+      "statement": "After the grace period, a fee is charged once per instalment: the greater of the flat fee and a percentage, limited to the cap, plus GST."
+    }
+  ]
+}

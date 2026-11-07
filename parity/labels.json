@@ -1,0 +1,29 @@
+{
+  "labels": [
+    {
+      "name": "rounding",
+      "definition": "Values differ by small amounts because of how or when numbers are rounded.",
+      "example": "Legacy 103.73, new 103.72 for the same calculation."
+    },
+    {
+      "name": "day_count_convention",
+      "definition": "Interest differs because the number of days or the year basis is counted differently (ACT/365, ACT/360, 30/360).",
+      "example": "New code accrues 29 days in February where legacy accrues 30."
+    },
+    {
+      "name": "null_handling",
+      "definition": "A missing value is treated differently, for example as zero in one system and ignored in the other.",
+      "example": "Legacy charges the flat fee when the percentage fee is missing; new charges nothing."
+    },
+    {
+      "name": "real_defect",
+      "definition": "The new code is wrong: a rule is missing, inverted or misapplied. Not explained by any other label.",
+      "example": "New code never charges the late fee."
+    },
+    {
+      "name": "unknown",
+      "definition": "None of the other labels fits, or the evidence is not enough to decide.",
+      "example": "A difference with no matching rule in the extracted rules."
+    }
+  ]
+}

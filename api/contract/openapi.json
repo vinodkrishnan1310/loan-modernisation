@@ -1,0 +1,322 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Loan EOD API",
+  "version": "1.0.0"
+ },
+ "paths": {
+  "/health": {
+   "get": {
+    "summary": "Health",
+    "operationId": "health_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Health"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/loans/{loan_id}": {
+   "get": {
+    "summary": "Get Loan",
+    "operationId": "get_loan_loans__loan_id__get",
+    "parameters": [
+     {
+      "name": "loan_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Loan Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LoanState"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/loans/{loan_id}/eod": {
+   "post": {
+    "summary": "Run Loan Eod",
+    "operationId": "run_loan_eod_loans__loan_id__eod_post",
+    "parameters": [
+     {
+      "name": "loan_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Loan Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EodRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EodResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "EodRequest": {
+    "properties": {
+     "as_of": {
+      "type": "string",
+      "format": "date",
+      "title": "As Of"
+     }
+    },
+    "type": "object",
+    "required": [
+     "as_of"
+    ],
+    "title": "EodRequest"
+   },
+   "EodResponse": {
+    "properties": {
+     "engine": {
+      "type": "string",
+      "title": "Engine"
+     },
+     "as_of": {
+      "type": "string",
+      "format": "date",
+      "title": "As Of"
+     },
+     "ledger_entries_added": {
+      "type": "integer",
+      "title": "Ledger Entries Added"
+     },
+     "state": {
+      "$ref": "#/components/schemas/LoanState"
+     }
+    },
+    "type": "object",
+    "required": [
+     "engine",
+     "as_of",
+     "ledger_entries_added",
+     "state"
+    ],
+    "title": "EodResponse"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "Health": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "engine": {
+      "type": "string",
+      "title": "Engine"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status",
+     "engine"
+    ],
+    "title": "Health"
+   },
+   "LoanState": {
+    "properties": {
+     "loan_id": {
+      "type": "integer",
+      "title": "Loan Id"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "last_run_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Run Date"
+     },
+     "asset_class": {
+      "type": "string",
+      "title": "Asset Class"
+     },
+     "dpd": {
+      "type": "integer",
+      "title": "Dpd"
+     },
+     "current_rate_pct": {
+      "anyOf": [
+       {
+        "type": "string",
+        "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Current Rate Pct"
+     },
+     "principal_outstanding": {
+      "type": "string",
+      "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+      "title": "Principal Outstanding"
+     },
+     "accrued_interest": {
+      "type": "string",
+      "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+      "title": "Accrued Interest"
+     },
+     "accrued_penal": {
+      "type": "string",
+      "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+      "title": "Accrued Penal"
+     },
+     "suspense_interest": {
+      "type": "string",
+      "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+      "title": "Suspense Interest"
+     },
+     "fees_outstanding": {
+      "type": "string",
+      "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+      "title": "Fees Outstanding"
+     },
+     "advance_balance": {
+      "type": "string",
+      "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+      "title": "Advance Balance"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loan_id",
+     "status",
+     "last_run_date",
+     "asset_class",
+     "dpd",
+     "current_rate_pct",
+     "principal_outstanding",
+     "accrued_interest",
+     "accrued_penal",
+     "suspense_interest",
+     "fees_outstanding",
+     "advance_balance"
+    ],
+    "title": "LoanState"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   }
+  }
+ }
+}

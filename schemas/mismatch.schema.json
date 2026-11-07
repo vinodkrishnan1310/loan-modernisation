@@ -1,0 +1,54 @@
+{
+  "type": "object",
+  "description": "Classification of one difference between the legacy output and the new output.",
+  "properties": {
+    "label": {
+      "type": "string",
+      "enum": [
+        "rounding",
+        "day_count_convention",
+        "null_handling",
+        "real_defect",
+        "unknown"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "explanation": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "evidence": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "maxLength": 200
+      }
+    },
+    "suggested_fix": {
+      "type": "string",
+      "maxLength": 400
+    },
+    "related_rule_ids": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "maxLength": 12
+      }
+    }
+  },
+  "required": [
+    "label",
+    "confidence",
+    "explanation",
+    "evidence",
+    "suggested_fix",
+    "related_rule_ids"
+  ],
+  "additionalProperties": false
+}

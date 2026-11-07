@@ -1,0 +1,62 @@
+{
+  "module": "loan_eod",
+  "rules": [
+    {
+      "id": "RULE-01",
+      "title": "Late fee is charged once per instalment",
+      "kind": "fee",
+      "statement": "After the grace period, the first day an instalment is overdue, a fee is charged: the greater of the flat fee and a percentage of the overdue amount, limited to the cap, plus 18% GST. It is charged once per instalment.",
+      "source": {
+        "file": "loan_eod_bundle.sql",
+        "start": 505,
+        "end": 525
+      },
+      "confidence": 0.9,
+      "notes": null
+    },
+    {
+      "id": "RULE-02",
+      "title": "Penal interest stops at NPA",
+      "kind": "penal_interest",
+      "statement": "Each overdue day, penal interest is charged on the unpaid principal and interest of each overdue instalment. Once the loan is classified NPA, no further penal interest is charged.",
+      "source": {
+        "file": "loan_eod_bundle.sql",
+        "start": 528,
+        "end": 533
+      },
+      "confidence": 0.85,
+      "notes": "Penal interest always uses a 365-day year."
+    },
+    {
+      "id": "RULE-03",
+      "title": "Days past due count from the contractual due date",
+      "kind": "classification",
+      "statement": "Days past due run from the original due date of the oldest unpaid billed instalment. The class is STANDARD at 0 days, SMA0 up to 30, SMA1 up to 60, SMA2 up to the product's NPA limit (default 90), then NPA.",
+      "source": {
+        "file": "loan_eod_bundle.sql",
+        "start": 550,
+        "end": 558
+      },
+      "confidence": 0.9,
+      "notes": null
+    }
+  ],
+  "contradictions": [
+    {
+      "comment_source": {
+        "file": "loan_eod_bundle.sql",
+        "start": 489,
+        "end": 489
+      },
+      "code_source": {
+        "file": "loan_eod_bundle.sql",
+        "start": 530,
+        "end": 531
+      },
+      "description": "A comment says penal interest compounds monthly on the penal balance. The code charges penal interest only on unpaid principal and interest and never on the accrued penal balance."
+    }
+  ],
+  "open_questions": [
+    "When the loan closes, accrued interest for the final period is written off. Is that intended for every closure or only for foreclosure?"
+  ]
+}

@@ -1,0 +1,3 @@
+{
+  "install": "pip install -r api/requirements.txt openai jsonschema"
+}

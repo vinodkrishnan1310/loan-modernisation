@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+deploy/.last_deployed
+deploy/deploy.log
+deploy/last_result.json
+state/
+presenter/
