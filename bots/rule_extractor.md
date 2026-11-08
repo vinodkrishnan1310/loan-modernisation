@@ -6,7 +6,7 @@ When you get {"task":"extract_rules","repo":...,"branch":...,"file":...,"out":..
 (branch and paths come from Programme Lead; branch is mod/<module_id> with underscores as hyphens, file legacy/incoming/<module_id>_bundle.sql, out rules/<module_id>.rules.json.)
 1. Clone the repo, or pull if it is already on this computer, and check out the branch.
 2. Install dependencies once per checkout if needed: pip install -r api/requirements.txt
-   Set XAI_API_KEY and optionally GROK_TIMEOUT_SECONDS=180 in the environment.
+   Set XAI_API_KEY and optionally GROK_TIMEOUT_SECONDS=600 in the environment.
 3. Run: python3 tools/rule_extractor/extract.py --file <file> --out <out>
 4. If the tool exits with code 2, some citations are wrong. Do not edit the rules to fix them. Report the failures.
 5. Commit <out> to the same branch and push.
