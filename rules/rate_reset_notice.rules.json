@@ -1,0 +1,269 @@
+{
+  "module": "lms.sp_rate_reset_notice",
+  "rules": [
+    {
+      "id": "RULE-01",
+      "title": "Reject a notice window outside 1 to 90 days",
+      "kind": "error_handling",
+      "statement": "If p_window_days is null, less than 1, or greater than 90, the procedure raises LMS-031 and stops before the loan loop. A missing window is an error, not a default of 30. p_as_of is not checked for null.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 28,
+        "end": 30
+      },
+      "confidence": 0.98,
+      "notes": "The exception text says the same 1-to-90 bounds the IF enforces."
+    },
+    {
+      "id": "RULE-02",
+      "title": "Reset posted and skipped counters to zero",
+      "kind": "other",
+      "statement": "p_posted and p_skipped are set to 0 at the start, discarding any incoming INOUT values. Later, p_skipped counts only NPA skips and the combined rate-or-duplicate skip, not loans left out by the window test.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 31,
+        "end": 32
+      },
+      "confidence": 0.95,
+      "notes": "Skip increments are at lines 38 and 69; the window continue at lines 50-52 does not increment."
+    },
+    {
+      "id": "RULE-03",
+      "title": "Select only active floating-rate loans",
+      "kind": "classification",
+      "statement": "Only lms.loan rows with status exactly 'ACTIVE' and rate_type exactly 'FLOATING' are read, in loan_id order. Other statuses and rate types are neither noticed nor counted as skipped. The comparisons are case-sensitive.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 34,
+        "end": 36
+      },
+      "confidence": 0.97,
+      "notes": null
+    },
+    {
+      "id": "RULE-04",
+      "title": "Skip loans whose asset class is NPA",
+      "kind": "classification",
+      "statement": "If asset_class is exactly 'NPA', p_skipped increases by 1 and the loan is skipped. No other asset class is treated as non-performing. A null asset_class is not skipped by this test.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 37,
+        "end": 40
+      },
+      "confidence": 0.96,
+      "notes": "An NPA loan can still have status ACTIVE and enter the loop before this test."
+    },
+    {
+      "id": "RULE-05",
+      "title": "Abort when a floating loan has no benchmark",
+      "kind": "error_handling",
+      "statement": "If benchmark_code is null, the procedure raises LMS-005 and includes the loan_id. A missing code is not replaced with zero and is not added to p_skipped. There is no exception handler, so later loans in the loop are not processed.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 41,
+        "end": 43
+      },
+      "confidence": 0.95,
+      "notes": "No EXCEPTION section or COMMIT appears in lines 27-78."
+    },
+    {
+      "id": "RULE-06",
+      "title": "Derive the next reset from completed months",
+      "kind": "calendar",
+      "statement": "Completed months come from age(p_as_of, disb_date) as year*12 plus month; days are dropped. That count becomes (v_months / reset_months) * reset_months + reset_months, then is added to disb_date as a month interval and cast to date. If reset_months is an integer, division truncates, so a boundary already reached is skipped and one further cycle is added. Zero or null reset_months is not guarded. Month-end dates are clamped by interval addition.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 46,
+        "end": 49
+      },
+      "confidence": 0.78,
+      "notes": "Truncation applies only if reset_months is an integer; its type is not declared in this file."
+    },
+    {
+      "id": "RULE-07",
+      "title": "Apply an upper calendar-day window only",
+      "kind": "calendar",
+      "statement": "If v_next is after p_as_of plus p_window_days, the loan is left unchanged and the loop continues. Addition is calendar days, not business days. There is no lower bound, so a v_next on or before p_as_of is not rejected here. This path does not increment p_skipped.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 50,
+        "end": 52
+      },
+      "confidence": 0.94,
+      "notes": null
+    },
+    {
+      "id": "RULE-08",
+      "title": "Move Saturday and Sunday notices to Monday",
+      "kind": "calendar",
+      "statement": "The notice date is v_next plus 2 days when extract(dow) is 6 (Saturday), plus 1 day when it is 0 (Sunday), and otherwise unchanged. No holiday table is read, so a weekday holiday is left as the notice date. The window test uses v_next, so the stored notice date can fall after the window end.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 55,
+        "end": 55
+      },
+      "confidence": 0.97,
+      "notes": "PostgreSQL dow 0 is Sunday and 6 is Saturday. Comment at line 54 matches this weekend shift."
+    },
+    {
+      "id": "RULE-09",
+      "title": "Build old and new rates from benchmark plus spread",
+      "kind": "rate",
+      "statement": "The new rate is the latest benchmark_rate.rate_pct for the loan benchmark with effective_date on or before v_next, or 0 if that lookup returns no row or a null rate, plus spread_pct or 0 if spread is null. The old rate uses the same rule on or before disb_date plus (v_months - reset_months) months. v_old and v_new are declared numeric with no precision or scale, and the procedure never rounds.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 58,
+        "end": 64
+      },
+      "confidence": 0.93,
+      "notes": "Declarations are at lines 25-26. LIMIT 1 has no tie-break if two rows share the latest effective_date."
+    },
+    {
+      "id": "RULE-10",
+      "title": "Skip absolute rate moves under 0.25",
+      "kind": "rate",
+      "statement": "If the absolute difference between v_new and v_old is strictly less than 0.25, the loan is skipped and p_skipped increases by 1. A difference of exactly 0.25 is not skipped by this test. Spread is added to both rates, so it cancels; the test is on benchmark movement only, in the stored rate units, with no rounding. A missing benchmark stored as 0 makes the difference zero if both are missing, or large if only one is missing.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 66,
+        "end": 71
+      },
+      "confidence": 0.95,
+      "notes": "The same IF also skips duplicates, so one counter increment covers either cause."
+    },
+    {
+      "id": "RULE-11",
+      "title": "Skip a notice already stored for that reset",
+      "kind": "other",
+      "statement": "The loan is also skipped when a loan_ledger row exists for that loan_id with entry_type exactly 'RESET_NOTICE' and note LIKE 'reset ' concatenated with v_next and '%'. Deduplication is a text prefix on the note, not a match on entry_date or amount. Either this match or the 0.25 test causes a single p_skipped increment.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 67,
+        "end": 70
+      },
+      "confidence": 0.92,
+      "notes": "Date-to-text uses the default date cast. There is no unique constraint in this procedure."
+    },
+    {
+      "id": "RULE-12",
+      "title": "Post the new rate on a RESET_NOTICE row",
+      "kind": "other",
+      "statement": "Otherwise one loan_ledger row is inserted. entry_date is the weekend-adjusted notice date, entry_type is 'RESET_NOTICE', and amount is v_new, the new rate, not the change and not a currency amount. The note is 'reset ' || v_next || ' from ' || v_old || ' to ' || v_new, with numerics cast to text and not rounded. p_posted increases by 1. The loan row's rate is not updated.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 73,
+        "end": 76
+      },
+      "confidence": 0.97,
+      "notes": "No round, trunc, or numeric(p,s) cast is applied before the insert."
+    },
+    {
+      "id": "RULE-13",
+      "title": "Unhandled errors abort the remaining loans",
+      "kind": "error_handling",
+      "statement": "The body has no EXCEPTION section and no COMMIT. The only explicit errors are LMS-031 for the window and LMS-005 for a null benchmark. Any other failure, including division by zero if reset_months is zero, aborts the loop. This procedure does not itself record a partial skip for that failure.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 27,
+        "end": 78
+      },
+      "confidence": 0.9,
+      "notes": "Whether inserts already made in the call survive depends on the caller transaction, which this file does not show."
+    }
+  ],
+  "contradictions": [
+    {
+      "comment_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 5,
+        "end": 5
+      },
+      "code_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 28,
+        "end": 30
+      },
+      "description": "The 2015 header says the procedure lists resets due in the next 30 days. The code does not fix the window at 30: p_window_days is a parameter, and LMS-031 rejects null or any value outside 1 to 90. The body also inserts ledger rows at lines 73-75 rather than returning a list."
+    },
+    {
+      "comment_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 10,
+        "end": 11
+      },
+      "code_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 50,
+        "end": 52
+      },
+      "description": "The header says a notice is posted when the next reset falls inside the window. The code only rejects v_next later than p_as_of plus p_window_days. A calculated reset on or before p_as_of is not excluded, and out-of-window loans are not counted as skipped."
+    },
+    {
+      "comment_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 10,
+        "end": 11
+      },
+      "code_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 37,
+        "end": 71
+      },
+      "description": "The summary says every active floating-rate loan whose reset is in the window gets a RESET_NOTICE, with the new rate as the amount. The amount part matches lines 73-75, but the code also skips asset_class 'NPA', absolute moves under 0.25, and an existing notice for that reset date."
+    },
+    {
+      "comment_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 7,
+        "end": 7
+      },
+      "code_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 37,
+        "end": 40
+      },
+      "description": "The 2019 note says non-performing loans are skipped. The code skips only asset_class equal to 'NPA'. It does not test loan status, a non-performing flag, or any other asset class."
+    },
+    {
+      "comment_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 45,
+        "end": 45
+      },
+      "code_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 46,
+        "end": 49
+      },
+      "description": "The comment says this is months since disbursement, then the start of the next reset cycle. Days in age() are discarded, and when completed months is already a multiple of reset_months the formula adds another full cycle, so the boundary just reached is not used."
+    },
+    {
+      "comment_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 57,
+        "end": 57
+      },
+      "code_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 58,
+        "end": 64
+      },
+      "description": "The comment says the new rate is the benchmark on the reset date and the current rate is the benchmark at cycle start. The code uses the latest row with effective_date on or before that date, substitutes 0 when no rate or a null rate_pct is found, and adds spread_pct, also 0 when null."
+    }
+  ],
+  "open_questions": [
+    "Is reset_months an integer? If it is numeric, the cycle formula does not truncate and the next reset date changes. Zero or null reset_months is unhandled.",
+    "A reset is selected only while completed months is still below that cycle boundary and v_next is within the upper window. A run on the reset date itself jumps to the following cycle. Confirm a run is required strictly before each reset date.",
+    "Should a v_next on or before p_as_of be excluded, and should window misses increment p_skipped?",
+    "Is asset_class 'NPA' the full non-performing set, and is the match case-sensitive on purpose? Other delinquency classes are not skipped.",
+    "Is 0 the intended substitute for a missing benchmark rate or a null spread? Both missing becomes a 0 difference and a skip; only one missing can look like a large move.",
+    "Confirm rate_pct is in percentage points, so 0.25 is a quarter point. Exactly 0.25 is posted; a smaller absolute move is not. No rounding is applied.",
+    "Should the notice date move off bank holidays, or only Saturday and Sunday? Weekend roll-forward can place entry_date after the window.",
+    "Duplicate detection is a note prefix of 'reset ' plus the date. Confirm that a changed note, or two benchmark rows on the same effective_date with no tie-break, must not cause a second or arbitrary notice.",
+    "p_as_of and disb_date are not validated. Confirm a null as-of date or a disbursement after the as-of date should not be rejected here.",
+    "This procedure does not update the loan rate and does not accrue interest, bill, charge fees or penal interest, apply payments, handle prepayment, or close the loan. Confirm notice-only posting is the full scope.",
+    "A null benchmark raises LMS-005 with no handler and no COMMIT in this procedure. Confirm whether one bad loan should undo notices already inserted in the same call.",
+    "Confirm ledger consumers will not treat RESET_NOTICE.amount as money. It stores the unrounded new rate."
+  ],
+  "citation_failures": []
+}
