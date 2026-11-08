@@ -9,10 +9,10 @@ import pytest
 
 from tools.grok_client import (
     DEFAULT_MODEL,
-    TIMEOUT_SECONDS,
     XAI_BASE_URL,
     GrokUnavailable,
     OpenAIGrokClient,
+    httpx_timeout,
     model_name,
 )
 
@@ -65,7 +65,7 @@ def test_from_env_requires_key_and_targets_xai(monkeypatch):
     monkeypatch.setattr(openai, "OpenAI", FakeOpenAI)
     client = OpenAIGrokClient.from_env()
     assert captured["base_url"] == XAI_BASE_URL
-    assert captured["timeout"] == TIMEOUT_SECONDS
+    assert captured["timeout"] == httpx_timeout()
     assert captured["api_key"] == os.environ["XAI_API_KEY"]
     assert client.model == "grok-4.7"
 
@@ -84,7 +84,7 @@ def test_complete_sends_structured_output_and_validates():
     assert result == payload
     assert seen["model"] == "grok-4.7"
     assert seen["temperature"] == 0
-    assert seen["timeout"] == 30
+    assert seen["timeout"] == httpx_timeout()
     assert seen["messages"] == [
         {"role": "system", "content": "system"},
         {"role": "user", "content": "user"},
