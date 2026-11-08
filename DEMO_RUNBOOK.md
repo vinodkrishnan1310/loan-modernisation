@@ -2,7 +2,7 @@
 
 End-to-end steps from **cold reset** through **deploy watcher**, using **Slack + Grok bots** and **SINGLE_MODULE** mode (one stored procedure per programme run). Repo root: this folder (`loan-modernisation` on GitHub).
 
-**Narrative:** Loan EOD is the hard legacy story; **live** extract uses `prepayment_quote` then `rate_reset_notice` (~260 lines each). Optionally demo quote only in the room and pre-run notice.
+**Narrative:** Loan EOD is the hard legacy story; **live** extract uses `prepayment_quote` then `rate_reset_notice` (~75 lines each, self-contained SQL). Optionally demo quote only in the room and pre-run notice.
 
 ---
 

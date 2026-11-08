@@ -1,6 +1,6 @@
 Convert only the stored procedure `lms.sp_prepayment_quote` to Python, following `README_MODULE2.md` and the skill `convert-stored-proc`.
 
-Legacy source: `sql/06_sp_prepayment_quote.sql` (helpers in `sql/03_helpers.sql`).
+Legacy source: `sql/06_sp_prepayment_quote.sql` (self-contained; no helper functions).
 Approved rules, if present: `rules/prepayment_quote.rules.json`.
 
 Do in this order:

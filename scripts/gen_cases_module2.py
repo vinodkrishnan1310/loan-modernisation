@@ -86,8 +86,8 @@ Q = [
  ("Q07", "interest_since_last_run",   loan(last_run_date="2024-06-01", accrued_interest="1234.57", accrued_penal="310.40"), "2024-06-20"),
  ("Q08", "fees_outstanding_gst",      loan(fees_outstanding="576.25"), "2024-06-15"),
  ("Q09", "advance_exceeds_total",     loan(principal_outstanding="5000.00", principal_disbursed="5000.00", advance_balance="20000.00", tenor_months=12), "2024-02-15"),
- ("Q10", "quote_on_second_saturday",  loan(), "2024-06-08"),
- ("Q11", "validity_over_holiday",     loan(branch_state="DL"), "2024-03-22"),
+ ("Q10", "quote_on_saturday",  loan(), "2024-06-08"),
+ ("Q11", "quote_before_holiday",     loan(branch_state="DL"), "2024-03-22"),
  ("Q12", "fee_rounding_tie",          loan(principal_outstanding="1000000.25"), "2024-06-15"),
  ("Q13", "month_end_disbursal",       loan(disb_date="2024-01-31", tenor_months=6), "2024-04-30"),
  ("Q14", "month_end_disbursal_leap",  loan(disb_date="2024-02-29", tenor_months=6), "2024-05-29"),
@@ -103,9 +103,9 @@ for cid, name, l, qd in Q:
     try:
         cur.execute("SELECT * FROM lms.sp_prepayment_quote(%s, %s::date)", (l["loan_id"], qd))
         res = {k: s(v) for k, v in cur.fetchone().items()}
-        rec["legacy_output"] = {"result": res, "ledger": ledger_rows(8001, 8001)}
+        rec["legacy_output"] = {"result": res, "ledger": []}
     except psycopg.errors.RaiseException as e:
-        rec["legacy_output"] = {"error": err(e), "ledger": ledger_rows(8001, 8001)}
+        rec["legacy_output"] = {"error": err(e), "ledger": []}
     quote_cases.append(rec)
 clean()
 json.dump(quote_cases, open(OUT / "quote_cases.json", "w"), indent=1)
@@ -134,7 +134,7 @@ N = [
  ("N13", "six_month_reset",        [fl(1, reset_months=6, disb_date="2024-04-09")], "2024-09-25", 30, []),
  ("N14", "month_end_30th",         [fl(1, disb_date="2024-07-31")], "2025-04-30", 10, []),
  ("N15", "month_end_leap",         [fl(1, disb_date="2024-02-29", reset_months=6)], "2025-08-28", 5, []),
- ("N16", "holiday_notice_day",     [fl(1, disb_date="2024-08-01", branch_state="KA")], "2024-10-20", 15, []),
+ ("N16", "reset_on_friday",     [fl(1, disb_date="2024-08-01", branch_state="KA")], "2024-10-20", 15, []),
 ]
 notice_cases = []
 for cid, name, loans, as_of, win, prior in N:

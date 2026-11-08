@@ -778,7 +778,7 @@
  },
  {
   "case_id": "N16",
-  "scenario": "holiday_notice_day",
+  "scenario": "reset_on_friday",
   "inputs": {
    "loans": [
     {
@@ -815,7 +815,7 @@
    "ledger": [
     {
      "loan_id": "8001",
-     "entry_date": "2024-11-02",
+     "entry_date": "2024-11-01",
      "entry_type": "RESET_NOTICE",
      "amount": "9.25",
      "note": "reset 2024-11-01 from 9.0000 to 9.2500"

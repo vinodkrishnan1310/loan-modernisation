@@ -1,6 +1,6 @@
 Convert only the stored procedure `lms.sp_rate_reset_notice` to Python, following `README_MODULE2.md` and the skill `convert-stored-proc`.
 
-Legacy source: `sql/07_sp_rate_reset_notice.sql` (helpers in `sql/03_helpers.sql`).
+Legacy source: `sql/07_sp_rate_reset_notice.sql` (self-contained; no helper functions).
 Approved rules, if present: `rules/rate_reset_notice.rules.json`.
 
 Do in this order:

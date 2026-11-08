@@ -7,10 +7,10 @@ This file describes two more procedures that follow the same pattern. Read `AGEN
 
 | Legacy procedure | Source | What it does | Python target |
 |---|---|---|---|
-| `lms.sp_prepayment_quote(loan_id, quote_date)` | `sql/06_sp_prepayment_quote.sql` | Payoff quote for one loan. Writes one `QUOTE` ledger row. | `service/prepayment_quote.py` |
+| `lms.sp_prepayment_quote(loan_id, quote_date)` | `sql/06_sp_prepayment_quote.sql` | Payoff quote for one loan. Read only, no helper functions. | `service/prepayment_quote.py` |
 | `lms.sp_rate_reset_notice(as_of, window_days)` | `sql/07_sp_rate_reset_notice.sql` | Posts `RESET_NOTICE` ledger rows for floating-rate loans about to reset. Runs over the whole loan book. | `service/rate_reset_notice.py` |
 
-Both use the helper functions in `sql/03_helpers.sql` (`fn_rate_for_day`, `fn_next_business_day`, `sp_post_ledger`) and only existing tables.
+The quote procedure is self-contained. The notice procedure uses the helper functions in `sql/03_helpers.sql` (`fn_rate_for_day`, `fn_next_business_day`, `sp_post_ledger`). Both use only existing tables.
 **No DDL.** Do not add tables, columns, indexes or functions.
 
 ## Files already in the repo (do not edit)
@@ -31,7 +31,7 @@ def quote(reference: dict, inputs: dict) -> dict
 ```
 - `inputs = {"loan": {...}, "quote_date": "YYYY-MM-DD"}`. The loan dict has the columns of `lms.loan` as strings or null.
 - Success returns `{"result": {"o_principal", "o_interest", "o_penal", "o_fees", "o_prepay_fee", "o_gst", "o_total": Decimal, "o_valid_until": date}, "ledger": [row]}`.
-- A ledger row is `{"loan_id": str, "entry_date": str, "entry_type": "QUOTE", "amount": Decimal, "note": str}`.
+- `ledger` is always an empty list for the quote.
 - When the procedure raises, return `{"error": "<first line of the message>", "ledger": []}`. The message text is part of the behaviour.
 
 ### 2. `service/rate_reset_notice.py`
@@ -40,7 +40,7 @@ def quote(reference: dict, inputs: dict) -> dict
 def notices(reference: dict, inputs: dict) -> dict
 ```
 - `inputs = {"loans": [loan dicts, the whole book], "as_of": str, "window_days": int, "prior_ledger": [ledger rows already present]}`.
-- Success returns `{"posted": int, "skipped": int, "ledger": [new rows]}`. Error returns `{"error": str, "ledger": [...]}` like above.
+- Success returns `{"posted": int, "skipped": int, "ledger": [new rows]}`. A ledger row is `{"loan_id": str, "entry_date": str, "entry_type": "RESET_NOTICE", "amount": Decimal, "note": str}`. Error returns `{"error": str, "ledger": [...]}` like above.
 - The procedure raises in the middle of its loop. Decide from the golden cases what must be in `ledger` when that happens.
 
 ### 3. Database adapters in `api/engine_service.py`
@@ -60,7 +60,7 @@ Add a `--golden` option (default `golden/golden_master.json`) so the classifier 
 
 | Method and path | Body | Notes |
 |---|---|---|
-| `POST /loans/{loan_id}/prepayment-quote` | `{"quote_date": "2024-06-15"}` | Writes one ledger row per call. |
+| `POST /loans/{loan_id}/prepayment-quote` | `{"quote_date": "2024-06-15"}` | Read only. |
 | `POST /rate-reset-notices` | `{"as_of": "2024-09-25", "window_days": 30}` | Runs over every active floating loan. |
 
 `api/contract/openapi.json` was regenerated once, as an approved additive change, before this work. It is the contract now. `pytest api/tests` must keep passing and you must not regenerate the file.

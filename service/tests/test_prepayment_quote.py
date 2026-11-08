@@ -56,7 +56,7 @@ def test_null_accrued_interest_is_not_treated_as_zero():
     assert "error" not in got
     assert got["result"]["o_interest"] is None
     assert got["result"]["o_total"] is None
-    assert got["ledger"][0]["amount"] is None
+    assert got["ledger"] == []
 
 
 def test_missing_loan_names_the_id():

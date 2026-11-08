@@ -21,38 +21,17 @@ def to_date(s):
     return s if isinstance(s, date) else date.fromisoformat(s)
 
 
-class Calendar:
-    def __init__(self, holidays):
-        self.holidays = {(to_date(h["hdate"]), h["state_code"]) for h in holidays}
-
-    def is_business_day(self, d, state):
-        dow = (d.weekday() + 1) % 7
-        if dow == 0:
-            return False
-        return (d, "ALL") not in self.holidays
-
-    def next_business_day(self, d, state):
-        i = 0
-        while not self.is_business_day(d, state) and i < 10:
-            d += timedelta(days=1)
-            i += 1
-        return d
+def _months_since_disb(as_of: date, disb: date) -> int:
+    """``extract(year from age) * 12 + extract(month from age)`` (Postgres)."""
+    months = (as_of.year - disb.year) * 12 + (as_of.month - disb.month)
+    if as_of.day < disb.day:
+        months -= 1
+    return months
 
 
 def benchmark_on(benchmarks, code, day):
     rows = [b for b in benchmarks if b["benchmark_code"] == code and to_date(b["effective_date"]) <= day]
-    return D(max(rows, key=lambda b: to_date(b["effective_date"]))["rate_pct"]) if rows else None
-
-
-def rate_for_day(loan, day, benchmarks):
-    disb = to_date(loan["disb_date"])
-    delta = relativedelta(day, disb)
-    months = delta.years * 12 + delta.months
-    months = (months // int(loan["reset_months"])) * int(loan["reset_months"])
-    bench = benchmark_on(benchmarks, loan["benchmark_code"], disb + relativedelta(months=months))
-    if bench is None:
-        return D(loan["fixed_rate_pct"])
-    return bench + D(loan["spread_pct"] or 0)
+    return D(max(rows, key=lambda b: to_date(b["effective_date"]))["rate_pct"]) if rows else D(0)
 
 
 def notices(reference, inputs):
@@ -60,7 +39,7 @@ def notices(reference, inputs):
     window = inputs["window_days"]
     if window is None or window < 1 or window > 90:
         return {"error": "window_days must be between 1 and 90", "ledger": []}
-    cal = Calendar(reference["holidays"])
+    bench = reference["benchmark_rates"]
     seen = [(str(p["loan_id"]), p["entry_type"], p["note"]) for p in inputs.get("prior_ledger", [])]
     posted = skipped = 0
     ledger = []
@@ -70,21 +49,20 @@ def notices(reference, inputs):
         if l["benchmark_code"] is None:
             continue
         disb = to_date(l["disb_date"])
-        delta = relativedelta(as_of, disb)
-        months = delta.years * 12 + delta.months
         rm = int(l["reset_months"])
-        months = (months // rm) * rm + rm
+        months_in = _months_since_disb(as_of, disb)
+        months = (months_in // rm) * rm + rm
         next_reset = disb + relativedelta(months=months)
         if next_reset > as_of + timedelta(days=window):
             continue
         notice_day = next_reset
-        bench = benchmark_on(reference["benchmark_rates"], l["benchmark_code"], next_reset)
-        new_rate = (bench if bench is not None else D(0)) + D(l["spread_pct"] or 0)
-        old_rate = rate_for_day(l, as_of, reference["benchmark_rates"])
+        spread = D(l["spread_pct"] or 0)
+        new_rate = benchmark_on(bench, l["benchmark_code"], next_reset) + spread
+        old_rate = benchmark_on(bench, l["benchmark_code"], disb + relativedelta(months=months - rm)) + spread
+        prefix = f"reset {next_reset}"
         if abs(new_rate - old_rate) <= MIN_CHANGE:
             skipped += 1
             continue
-        prefix = f"reset {next_reset}"
         note = f"reset {next_reset} from {old_rate} to {new_rate}"
         row = {"loan_id": str(l["loan_id"]), "entry_date": notice_day.isoformat(),
                "entry_type": "RESET_NOTICE", "amount": r2(new_rate), "note": note}

@@ -39,15 +39,7 @@
     "o_total": "1062312.33",
     "o_valid_until": "2024-06-17"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-06-15",
-     "entry_type": "QUOTE",
-     "amount": "1062312.33",
-     "note": "valid until 2024-06-17"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -88,17 +80,9 @@
     "o_prepay_fee": "20000.00",
     "o_gst": "3600.00",
     "o_total": "1086230.14",
-    "o_valid_until": "2024-09-21"
+    "o_valid_until": "2024-09-22"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-09-20",
-     "entry_type": "QUOTE",
-     "amount": "1086230.14",
-     "note": "valid until 2024-09-21"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -141,15 +125,7 @@
     "o_total": "1070027.40",
     "o_valid_until": "2024-10-22"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-10-20",
-     "entry_type": "QUOTE",
-     "amount": "1070027.40",
-     "note": "valid until 2024-10-22"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -190,17 +166,9 @@
     "o_prepay_fee": "0",
     "o_gst": "0.00",
     "o_total": "1077801.37",
-    "o_valid_until": "2024-11-13"
+    "o_valid_until": "2024-11-14"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-11-12",
-     "entry_type": "QUOTE",
-     "amount": "1077801.37",
-     "note": "valid until 2024-11-13"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -241,17 +209,9 @@
     "o_prepay_fee": "15000.00",
     "o_gst": "2700.00",
     "o_total": "1050950.00",
-    "o_valid_until": "2024-05-04"
+    "o_valid_until": "2024-05-05"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-05-03",
-     "entry_type": "QUOTE",
-     "amount": "1050950.00",
-     "note": "valid until 2024-05-04"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -292,17 +252,9 @@
     "o_prepay_fee": "10000.00",
     "o_gst": "1800.00",
     "o_total": "546105.56",
-    "o_valid_until": "2024-07-19"
+    "o_valid_until": "2024-07-20"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-07-18",
-     "entry_type": "QUOTE",
-     "amount": "546105.56",
-     "note": "valid until 2024-07-19"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -343,17 +295,9 @@
     "o_prepay_fee": "20000.00",
     "o_gst": "3600.00",
     "o_total": "1029829.90",
-    "o_valid_until": "2024-06-21"
+    "o_valid_until": "2024-06-22"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-06-20",
-     "entry_type": "QUOTE",
-     "amount": "1029829.90",
-     "note": "valid until 2024-06-21"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -396,15 +340,7 @@
     "o_total": "1062992.31",
     "o_valid_until": "2024-06-17"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-06-15",
-     "entry_type": "QUOTE",
-     "amount": "1062992.31",
-     "note": "valid until 2024-06-17"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -445,22 +381,14 @@
     "o_prepay_fee": "100.00",
     "o_gst": "18.00",
     "o_total": "0",
-    "o_valid_until": "2024-02-16"
+    "o_valid_until": "2024-02-17"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-02-15",
-     "entry_type": "QUOTE",
-     "amount": "0.00",
-     "note": "valid until 2024-02-16"
-    }
-   ]
+   "ledger": []
   }
  },
  {
   "case_id": "Q10",
-  "scenario": "quote_on_second_saturday",
+  "scenario": "quote_on_saturday",
   "inputs": {
    "loan": {
     "loan_id": "8001",
@@ -496,22 +424,14 @@
     "o_prepay_fee": "20000.00",
     "o_gst": "3600.00",
     "o_total": "1060586.30",
-    "o_valid_until": "2024-06-11"
+    "o_valid_until": "2024-06-10"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-06-08",
-     "entry_type": "QUOTE",
-     "amount": "1060586.30",
-     "note": "valid until 2024-06-11"
-    }
-   ]
+   "ledger": []
   }
  },
  {
   "case_id": "Q11",
-  "scenario": "validity_over_holiday",
+  "scenario": "quote_before_holiday",
   "inputs": {
    "loan": {
     "loan_id": "8001",
@@ -547,17 +467,9 @@
     "o_prepay_fee": "20000.00",
     "o_gst": "3600.00",
     "o_total": "1041353.42",
-    "o_valid_until": "2024-03-26"
+    "o_valid_until": "2024-03-24"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-03-22",
-     "entry_type": "QUOTE",
-     "amount": "1041353.42",
-     "note": "valid until 2024-03-26"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -600,15 +512,7 @@
     "o_total": "1062312.60",
     "o_valid_until": "2024-06-17"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-06-15",
-     "entry_type": "QUOTE",
-     "amount": "1062312.60",
-     "note": "valid until 2024-06-17"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -649,17 +553,9 @@
     "o_prepay_fee": "20000.00",
     "o_gst": "3600.00",
     "o_total": "1045791.78",
-    "o_valid_until": "2024-05-01"
+    "o_valid_until": "2024-05-02"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-04-30",
-     "entry_type": "QUOTE",
-     "amount": "1045791.78",
-     "note": "valid until 2024-05-01"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -700,17 +596,9 @@
     "o_prepay_fee": "0",
     "o_gst": "0.00",
     "o_total": "1022191.78",
-    "o_valid_until": "2024-05-30"
+    "o_valid_until": "2024-05-31"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-05-29",
-     "entry_type": "QUOTE",
-     "amount": "1022191.78",
-     "note": "valid until 2024-05-30"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -751,17 +639,9 @@
     "o_prepay_fee": "50000.00",
     "o_gst": "9000.00",
     "o_total": "2740849.32",
-    "o_valid_until": "2024-09-03"
+    "o_valid_until": "2024-09-04"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-09-02",
-     "entry_type": "QUOTE",
-     "amount": "2740849.32",
-     "note": "valid until 2024-09-03"
-    }
-   ]
+   "ledger": []
   }
  },
  {
@@ -870,17 +750,9 @@
     "o_prepay_fee": "20000.00",
     "o_gst": "3600.00",
     "o_total": "1031243.84",
-    "o_valid_until": "2024-02-13"
+    "o_valid_until": "2024-02-12"
    },
-   "ledger": [
-    {
-     "loan_id": "8001",
-     "entry_date": "2024-02-10",
-     "entry_type": "QUOTE",
-     "amount": "1031243.84",
-     "note": "valid until 2024-02-13"
-    }
-   ]
+   "ledger": []
   }
  }
 ]

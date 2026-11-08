@@ -27,7 +27,7 @@ Swagger:
 ## What you say in the room
 
 1. EOD is the hard legacy problem; full rule extract is batch/chunked (or pre-run).
-2. Today we run the **same programme** on two smaller procedures (~260 lines each).
+2. Today we run the **same programme** on two smaller procedures (~75-line Slack bundles each).
 3. Both share one conversion PR; parity runs per module.
 
 ## Terminal script order (no bots until B5)

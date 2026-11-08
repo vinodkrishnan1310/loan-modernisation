@@ -73,7 +73,7 @@ def _db_loan():
     return loan
 
 
-def test_run_prepayment_quote_posts_one_quote_row():
+def test_run_prepayment_quote_returns_result_without_ledger_post():
     conn = FakeConn(_db_loan())
     result = run_prepayment_quote(conn, 8001, date(2024, 6, 15))
     assert set(result) == {
@@ -88,8 +88,7 @@ def test_run_prepayment_quote_posts_one_quote_row():
     }
     assert result["o_total"] == Decimal("1062312.33")
     assert result["o_valid_until"] == date(2024, 6, 17)
-    inserts = [params for sql, params in conn.calls if sql.lower().startswith("insert")]
-    assert inserts == [(8001, "2024-06-15", "QUOTE", Decimal("1062312.33"), "valid until 2024-06-17")]
+    assert not any(sql.lower().startswith("insert") for sql, _params in conn.calls)
     assert all("create " not in sql.lower() and "alter " not in sql.lower() for sql, _params in conn.calls)
 
 
