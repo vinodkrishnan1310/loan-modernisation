@@ -340,6 +340,11 @@ def main(argv: list[str] | None = None, client=None) -> int:
     parser = _Parser(description="Classify differences in a parity report.")
     parser.add_argument("--report", required=True, help="Parity report JSON")
     parser.add_argument("--rules", required=True, help="Extracted rules JSON")
+    parser.add_argument(
+        "--golden",
+        default=str(GOLDEN_PATH),
+        help="Golden cases JSON (e.g. golden/notice_cases.json)",
+    )
     parser.add_argument("--out", default=str(DEFAULT_OUT), help="Classified output JSON")
     args = parser.parse_args(argv)
 
@@ -368,13 +373,14 @@ def main(argv: list[str] | None = None, client=None) -> int:
             print(f"Grok unavailable: {exc}", file=sys.stderr)
             return 1
 
-    if not GOLDEN_PATH.is_file():
-        print(f"golden master not found: {GOLDEN_PATH}", file=sys.stderr)
+    golden_path = Path(args.golden)
+    if not golden_path.is_file():
+        print(f"golden cases not found: {golden_path}", file=sys.stderr)
         return 1
     if not REFERENCE_PATH.is_file():
         print(f"reference data not found: {REFERENCE_PATH}", file=sys.stderr)
         return 1
-    cases = _cases_by_id(load_json(GOLDEN_PATH))
+    cases = _cases_by_id(load_json(golden_path))
     products = _products_by_code(load_json(REFERENCE_PATH))
     records = build_records(report, rules_document["rules"], cases, products)
     try:
