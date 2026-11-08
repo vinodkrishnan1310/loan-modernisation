@@ -1,0 +1,14 @@
+{
+  "module": "rate_reset_notice",
+  "stage": "awaiting_rules_approval",
+  "branch": "mod/rate-reset-notice",
+  "incoming": "legacy/incoming/rate_reset_notice_bundle.sql",
+  "rules": "rules/rate_reset_notice.rules.json",
+  "rules_commit": "4877e95043b25bac34fb2a7ab3c7d6d4f2b96c69",
+  "extract": {
+    "rules": 13,
+    "contradictions": 6,
+    "open_questions": 12,
+    "citation_failures": 0
+  }
+}
