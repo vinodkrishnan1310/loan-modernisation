@@ -43,7 +43,7 @@ Enable GitHub and shell/code tools so specialists can clone, run Python, commit,
 bash deploy/reset_programme_demo.sh --api
 ```
 
-This resets loans, local rules/evidence, and deletes **all** `mod/*` branches on origin and locally (use `--no-git` to skip branch cleanup).
+This resets loans, local rules/evidence, and deletes **all branches except `main`** on origin and locally (use `--no-git` to skip branch cleanup).
 
 In Slack (do **not** run `extract.py` locally):
 

@@ -94,7 +94,7 @@ python3 scripts/branch_from_bundle.py prepayment_quote_bundle.sql
 
 ## 2. Full reset (start every rehearsal / live demo)
 
-Wipes **DB loans**, **local** rules/evidence, and **all `mod/*` branches** on GitHub.
+Wipes **DB loans**, **local** rules/evidence, and **all git branches except `main`** on GitHub (mod, cursor, evidence, …).
 
 ```bash
 cd /path/to/modernisation-kit
@@ -107,7 +107,7 @@ bash deploy/reset_programme_demo.sh --api
 
 Skip git cleanup only: `bash deploy/reset_programme_demo.sh --api --no-git`
 
-Confirm: `git branch -r` shows no `origin/mod/*`; API health OK on legacy engine.
+Confirm: `git branch -r` shows only `origin/main`; API health OK on legacy engine.
 
 ---
 

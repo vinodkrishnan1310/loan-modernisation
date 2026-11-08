@@ -6,3 +6,5 @@ deploy/deploy.log
 deploy/last_result.json
 state/
 presenter/
+.DS_Store
+.venv/

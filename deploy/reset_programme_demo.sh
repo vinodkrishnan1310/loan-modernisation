@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Reset laptop + programme artefacts for a fresh Slack playbook replay.
-# By default also deletes local and remote git branches matching origin/mod/*.
+# By default deletes every local and remote branch except main (mod/*, cursor/*, evidence/*, …).
 # Does not change main or delete Docker volumes.
 #
-#   bash deploy/reset_programme_demo.sh              # local + delete mod/* branches on origin
+#   bash deploy/reset_programme_demo.sh              # local + delete all non-main branches on origin
 #   bash deploy/reset_programme_demo.sh --api        # above + ENGINE=legacy api container
 #   bash deploy/reset_programme_demo.sh --no-git     # skip git branch cleanup (laptop only)
 #   bash deploy/reset_programme_demo.sh --api --no-git
@@ -35,34 +35,37 @@ rm -f state/*.json 2>/dev/null || true
 mkdir -p state
 
 if $reset_git; then
-  echo "== git branches mod/* (local + origin) =="
+  echo "== git branches (delete all except main, local + origin) =="
   git fetch --prune origin 2>/dev/null || echo "warn: git fetch origin failed (network/auth?); skipping remote deletes" >&2
 
+  trim() {
+    local s="$1"
+    s="${s#"${s%%[![:space:]]*}"}"
+    s="${s%"${s##*[![:space:]]}"}"
+    printf '%s' "$s"
+  }
+
   while IFS= read -r branch; do
-    branch="${branch#"${branch%%[![:space:]]*}"}"
-    branch="${branch%"${branch##*[![:space:]]}"}"
+    branch="$(trim "$branch")"
     [ -n "$branch" ] || continue
     name="${branch#origin/}"
+    case "$name" in main|HEAD) continue ;; esac
     echo "  delete remote $name"
     git push origin --delete "$name" || echo "    warn: could not delete origin/$name" >&2
-  done < <(git for-each-ref --format='%(refname:short)' refs/remotes/origin/mod/ 2>/dev/null || true)
-
-  while IFS= read -r branch; do
-    branch="${branch#\*}"
-    branch="${branch# }"
-    [ -n "$branch" ] || continue
-    if git show-ref --verify --quiet "refs/heads/$branch"; then
-      if [ "$branch" = "$(git branch --show-current 2>/dev/null)" ]; then
-        git checkout main 2>/dev/null || git checkout -f main
-      fi
-      echo "  delete local $branch"
-      git branch -D "$branch" 2>/dev/null || echo "    warn: could not delete local $branch" >&2
-    fi
-  done < <(git for-each-ref --format='%(refname:short)' refs/heads/mod/ 2>/dev/null || true)
+  done < <(git for-each-ref --format='%(refname:short)' refs/remotes/origin 2>/dev/null || true)
 
   if git show-ref --verify --quiet refs/heads/main; then
-    git checkout main 2>/dev/null || true
+    git checkout main 2>/dev/null || git checkout -f main
   fi
+
+  while IFS= read -r branch; do
+    branch="$(trim "$branch")"
+    [ -n "$branch" ] || continue
+    [ "$branch" = main ] && continue
+    echo "  delete local $branch"
+    git branch -D "$branch" 2>/dev/null || echo "    warn: could not delete local $branch" >&2
+  done < <(git for-each-ref --format='%(refname:short)' refs/heads 2>/dev/null || true)
+
   git pull --ff-only origin main 2>/dev/null || echo "warn: git pull main failed" >&2
 else
   echo "== git: skipped (--no-git) =="
