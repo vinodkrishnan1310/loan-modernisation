@@ -1,0 +1,24 @@
+{
+  "module": "rate_reset_notice",
+  "stage": "converting",
+  "branch": "mod/rate-reset-notice",
+  "incoming": "legacy/incoming/rate_reset_notice_bundle.sql",
+  "rules": "rules/rate_reset_notice.rules.json",
+  "rules_commit": "4877e95043b25bac34fb2a7ab3c7d6d4f2b96c69",
+  "extract": {
+    "rules": 13,
+    "contradictions": 6,
+    "open_questions": 12,
+    "citation_failures": 0
+  },
+  "gate1": {
+    "status": "approved",
+    "phrase": "APPROVE RULES rate_reset_notice",
+    "person": "Vinod",
+    "person_id": "U0477GFKP9T",
+    "time": "2026-11-08T11:18:35+05:30",
+    "channel": "C0CFST84H89",
+    "message_ts": "1794116915.098949",
+    "message_link": "https://vinodkrishnan13.slack.com/archives/C0CFST84H89/p1794116915098949"
+  }
+}
