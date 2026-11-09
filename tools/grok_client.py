@@ -27,7 +27,7 @@ import httpx2
 import jsonschema
 
 XAI_BASE_URL = "https://api.x.ai/v1"
-DEFAULT_MODEL = "grok-4.7"
+DEFAULT_MODEL = "grok-4.3"
 DEFAULT_TIMEOUT_SECONDS = 600
 # One try, then two retries. Delays are the pauses before each retry.
 RETRY_DELAYS_SECONDS = (1, 2)
