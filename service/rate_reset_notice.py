@@ -6,7 +6,6 @@ environment. Money rates are ``Decimal``. Dates are ``datetime.date``.
 
 from __future__ import annotations
 
-import math
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -28,7 +27,6 @@ def notices(reference: dict, inputs: dict) -> dict:
         return _error(f"LMS-031 window {window} days is outside 1 to 90", [])
 
     as_of = _as_date(inputs.get("as_of"))
-    holidays = _holiday_index(reference)
     benchmarks = reference.get("benchmark_rates") or []
     prior = inputs.get("prior_ledger") or []
 
@@ -62,13 +60,15 @@ def notices(reference: dict, inputs: dict) -> dict:
         if next_reset > as_of + timedelta(days=window):
             continue
 
-        notice_day = _next_business_day(next_reset, loan.get("branch_state"), holidays)
-        bench = _benchmark_on(benchmarks, loan.get("benchmark_code"), next_reset)
+        notice_day = _notice_date(next_reset)
         spread = _dec(loan.get("spread_pct"))
         if spread is None:
             spread = Decimal(0)
+        bench = _benchmark_on(benchmarks, loan.get("benchmark_code"), next_reset)
         new_rate = (_dec(bench) if bench is not None else Decimal(0)) + spread
-        old_rate = _rate_for_day(loan, as_of, benchmarks)
+        prior_cycle = _add_months(disb_date, stepped - reset_months)
+        old_bench = _benchmark_on(benchmarks, loan.get("benchmark_code"), prior_cycle)
+        old_rate = (_dec(old_bench) if old_bench is not None else Decimal(0)) + spread
 
         if abs(new_rate - old_rate) < MIN_CHANGE:
             skipped += 1
@@ -147,65 +147,14 @@ def _benchmark_on(benchmarks, code, day: date):
     return chosen.get("rate_pct")
 
 
-def _rate_for_day(loan, day: date | None, benchmarks):
-    """``lms.fn_rate_for_day`` for one in-memory loan row."""
-    if loan.get("rate_type") == "FIXED":
-        return _dec(loan.get("fixed_rate_pct"))
-
-    disb = _as_date(loan.get("disb_date"))
-    reset_months = _int(loan.get("reset_months"))
-    if day is None or disb is None or reset_months is None:
-        return _dec(loan.get("fixed_rate_pct"))
-    if reset_months == 0:
-        raise ZeroDivisionError("division by zero")
-
-    months = _whole_months(day, disb)
-    stepped = _pg_int_div(months, reset_months) * reset_months
-    reset = _add_months(disb, stepped)
-
-    bench = _benchmark_on(benchmarks, loan.get("benchmark_code"), reset)
-    if bench is None:
-        return _dec(loan.get("fixed_rate_pct"))
-    spread = _dec(loan.get("spread_pct"))
-    if spread is None:
-        spread = Decimal(0)
-    return _dec(bench) + spread
-
-
-def _next_business_day(day, state, holidays):
-    if day is None:
-        return None
-    current = day
-    steps = 0
-    while not _is_business_day(current, state, holidays) and steps < 10:
-        current = current + timedelta(days=1)
-        steps += 1
-    return current
-
-
-def _is_business_day(day, state, holidays) -> bool:
-    if day is None:
-        return True
-    dow = (day.weekday() + 1) % 7
-    if dow == 0:
-        return False
+def _notice_date(reset: date) -> date:
+    """Weekend notice dates roll to Monday; holidays are not shifted (RULE-08)."""
+    dow = (reset.weekday() + 1) % 7  # PostgreSQL: 0=Sunday, 6=Saturday
     if dow == 6:
-        nth = math.ceil(day.day / 7)
-        if nth in (2, 4):
-            return False
-    if (day, "ALL") in holidays or (day, state) in holidays:
-        return False
-    return True
-
-
-def _holiday_index(reference) -> set:
-    found = set()
-    for row in reference.get("holidays") or []:
-        day = _as_date(row.get("hdate"))
-        code = row.get("state_code")
-        if day is not None and code is not None:
-            found.add((day, code))
-    return found
+        return reset + timedelta(days=2)
+    if dow == 0:
+        return reset + timedelta(days=1)
+    return reset
 
 
 def _whole_months(later: date, earlier: date) -> int:
