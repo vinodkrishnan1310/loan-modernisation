@@ -1,0 +1,156 @@
+{
+  "module": "rate_reset_notice",
+  "rules": [
+    {
+      "id": "RULE-01",
+      "title": "Window days validation",
+      "kind": "error_handling",
+      "statement": "Raise LMS-031 exception if p_window_days is NULL or outside range 1 to 90 inclusive.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 28,
+        "end": 30
+      },
+      "confidence": 1,
+      "notes": "No declared precision on p_window_days."
+    },
+    {
+      "id": "RULE-02",
+      "title": "Initialize counters",
+      "kind": "other",
+      "statement": "Set p_posted and p_skipped to 0 before processing.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 31,
+        "end": 32
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-03",
+      "title": "Skip NPA loans",
+      "kind": "classification",
+      "statement": "If asset_class equals 'NPA' then increment p_skipped and skip the loan.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 37,
+        "end": 40
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-04",
+      "title": "Require benchmark code",
+      "kind": "error_handling",
+      "statement": "Raise LMS-005 exception if benchmark_code is NULL for a floating loan.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 41,
+        "end": 43
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-05",
+      "title": "Compute next reset date",
+      "kind": "calendar",
+      "statement": "Calculate months since disb_date, round down to multiple of reset_months then add one reset_months interval to obtain v_next.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 46,
+        "end": 49
+      },
+      "confidence": 1,
+      "notes": "Uses extract(year/month from age); no handling shown for reset_months <= 0."
+    },
+    {
+      "id": "RULE-06",
+      "title": "Window filter on reset date",
+      "kind": "calendar",
+      "statement": "Skip loan if v_next is after p_as_of plus p_window_days.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 50,
+        "end": 52
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-07",
+      "title": "Notice date weekday adjustment",
+      "kind": "calendar",
+      "statement": "Set v_notice to v_next plus 2 days if Saturday, plus 1 day if Sunday, else unchanged.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 55,
+        "end": 55
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-08",
+      "title": "New rate lookup with missing-value handling",
+      "kind": "rate",
+      "statement": "v_new equals most recent benchmark_rate.rate_pct where effective_date <= v_next plus spread_pct; both values coalesce to 0 if absent.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 58,
+        "end": 60
+      },
+      "confidence": 1,
+      "notes": "numeric type, no scale declared; ORDER BY effective_date DESC LIMIT 1."
+    },
+    {
+      "id": "RULE-09",
+      "title": "Old rate lookup with missing-value handling",
+      "kind": "rate",
+      "statement": "v_old equals most recent benchmark_rate.rate_pct where effective_date <= prior cycle start date plus spread_pct; both values coalesce to 0 if absent.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 61,
+        "end": 64
+      },
+      "confidence": 1,
+      "notes": "numeric type, no scale declared."
+    },
+    {
+      "id": "RULE-10",
+      "title": "Skip small rate change or duplicate notice",
+      "kind": "rate",
+      "statement": "If absolute difference between v_new and v_old is less than 0.25 or a RESET_NOTICE entry already exists with matching note pattern then increment p_skipped and skip.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 66,
+        "end": 71
+      },
+      "confidence": 1,
+      "notes": "Uses LIKE with partial date string; no rounding call shown."
+    },
+    {
+      "id": "RULE-11",
+      "title": "Insert reset notice",
+      "kind": "rate",
+      "statement": "Insert loan_ledger row with entry_type RESET_NOTICE, amount = v_new, entry_date = v_notice and note containing old and new rates.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 73,
+        "end": 76
+      },
+      "confidence": 1,
+      "notes": "Increments p_posted on success."
+    }
+  ],
+  "contradictions": [],
+  "open_questions": [
+    "Confirm that missing benchmark rates are intended to be treated as 0.",
+    "Confirm that duplicate notice detection relies on a LIKE pattern containing only the date portion.",
+    "Is the rounding behavior of the v_months calculation (integer division) the intended reset-cycle logic?",
+    "Confirm handling when reset_months is zero or negative."
+  ],
+  "citation_failures": []
+}
