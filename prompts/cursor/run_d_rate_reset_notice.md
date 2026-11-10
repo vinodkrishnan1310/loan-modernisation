@@ -11,3 +11,6 @@ Do in this order:
 Do not change prepayment quote code except shared wiring if required. Do not change the HTTP contract, golden data, SQL, or `fallback/`.
 Run `pytest`, then `python parity/parity_module2.py --proc notice`, and put the summary in the pull request description.
 Open one pull request titled `[conversion] rate reset notice`.
+
+
+Open the pull request with base branch equal to the branch you started from (not main). If you have no changes to commit, do not open a pull request; say so.
