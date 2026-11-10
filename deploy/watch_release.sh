@@ -13,7 +13,9 @@
 # Settings (environment): INTERVAL seconds between checks (10), API_URL (http://localhost:8000),
 #   SLACK_WEBHOOK_URL (optional) a Slack incoming webhook; if set, every deploy result is posted there,
 #   DB_RESET_CMD command that re-creates the smoke-test loan (default: deploy/reset_demo.sh)
-#   WATCH_SMOKE for ENGINE=service: eod | quote | auto (default auto — EOD 9002, else prepayment 9003)
+#   WATCH_SMOKE for ENGINE=service: eod | quote | notice | auto
+#     (default auto: EOD 9002; if that service path is not built, prepayment 9003; if that is not built either,
+#      the rate reset notice batch)
 #
 # The whole script sits inside main() and ends with `exit`, so bash has read all of it before
 # `git checkout` replaces this file underneath it.
@@ -37,16 +39,32 @@ main() {
       -H 'content-type: application/json' -d '{"quote_date":"2024-06-15"}'
   }
 
+  # Batch over every active floating-rate loan. deploy/reset_demo.sh runs first, so only demo loans are touched.
+  smoke_notice() {
+    curl -s -o "$SMOKE_OUT" -w '%{http_code}' -X POST "$API_URL/rate-reset-notices" \
+      -H 'content-type: application/json' -d '{"as_of":"2024-06-15","window_days":30}'
+  }
+
+  not_built() { grep -q 'service engine is not built yet' "$SMOKE_OUT" 2>/dev/null; }
+
   smoke_service() {
     local code label
     case "$WATCH_SMOKE" in
-      quote) code="$(smoke_quote)"; label="prepayment quote 9003"; echo "$code:$label"; return ;;
-      eod)   code="$(smoke_eod)"; label="loan eod 9002"; echo "$code:$label"; return ;;
+      quote)  code="$(smoke_quote)"; label="prepayment quote 9003"; echo "$code:$label"; return ;;
+      eod)    code="$(smoke_eod)"; label="loan eod 9002"; echo "$code:$label"; return ;;
+      notice) code="$(smoke_notice)"; label="rate reset notice"; echo "$code:$label"; return ;;
       auto)
+        # One module is converted per release, so try each service path in turn. The first path that is
+        # built decides the result; a path that is simply not built yet (501) is skipped.
         code="$(smoke_eod)"
         if [ "$code" = "200" ]; then echo "$code:loan eod 9002"; return; fi
-        if [ "$code" = "501" ] && grep -q 'service engine is not built yet' "$SMOKE_OUT" 2>/dev/null; then
+        if [ "$code" = "501" ] && not_built; then
           code="$(smoke_quote)"
+          if [ "$code" = "200" ]; then echo "$code:prepayment quote 9003 (fallback)"; return; fi
+          if [ "$code" = "501" ] && not_built; then
+            code="$(smoke_notice)"
+            echo "$code:rate reset notice (fallback)"; return
+          fi
           echo "$code:prepayment quote 9003 (fallback)"; return
         fi
         echo "$code:loan eod 9002"; return
