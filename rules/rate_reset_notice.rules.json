@@ -1,0 +1,169 @@
+{
+  "module": "rate_reset_notice",
+  "rules": [
+    {
+      "id": "RULE-01",
+      "title": "Window days validation",
+      "kind": "error_handling",
+      "statement": "If p_window_days is null or outside 1-90, raise exception LMS-031 with the supplied value; otherwise continue.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 28,
+        "end": 30
+      },
+      "confidence": 1,
+      "notes": "Declared parameter is int; no precision handling shown."
+    },
+    {
+      "id": "RULE-02",
+      "title": "Skip NPA loans",
+      "kind": "classification",
+      "statement": "If asset_class = 'NPA', increment p_skipped and skip the loan entirely.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 37,
+        "end": 40
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-03",
+      "title": "Require benchmark code",
+      "kind": "error_handling",
+      "statement": "If benchmark_code is null on an active floating loan, raise exception LMS-005 including the loan_id.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 41,
+        "end": 43
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-04",
+      "title": "Next reset date calculation",
+      "kind": "calendar",
+      "statement": "Compute months since disb_date using year*12 + month from age(), round down to multiple of reset_months then add one reset_months interval, then add that many months to disb_date to obtain v_next.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 46,
+        "end": 49
+      },
+      "confidence": 0.9,
+      "notes": "Uses extract(year/month from age) without day-count adjustment; no rounding function called."
+    },
+    {
+      "id": "RULE-05",
+      "title": "Reset inside window check",
+      "kind": "calendar",
+      "statement": "If v_next > p_as_of + p_window_days, skip the loan.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 50,
+        "end": 52
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-06",
+      "title": "Notice date weekend adjustment",
+      "kind": "calendar",
+      "statement": "Set v_notice to v_next plus 2 days if Saturday, plus 1 day if Sunday, else unchanged (next weekday on or after reset).",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 55,
+        "end": 55
+      },
+      "confidence": 1,
+      "notes": "Uses extract(dow) with no holiday calendar."
+    },
+    {
+      "id": "RULE-07",
+      "title": "New rate lookup with missing-value handling",
+      "kind": "rate",
+      "statement": "v_new = (most recent benchmark_rate.rate_pct where benchmark_code matches and effective_date <= v_next, or 0 if none) + coalesce(spread_pct, 0).",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 58,
+        "end": 60
+      },
+      "confidence": 1,
+      "notes": "Coalesce to 0 on both benchmark and spread; no rounding call."
+    },
+    {
+      "id": "RULE-08",
+      "title": "Old rate lookup with missing-value handling",
+      "kind": "rate",
+      "statement": "v_old = (most recent benchmark_rate.rate_pct where benchmark_code matches and effective_date <= disb_date + (v_months - reset_months) months, or 0 if none) + coalesce(spread_pct, 0).",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 61,
+        "end": 64
+      },
+      "confidence": 1,
+      "notes": "Coalesce to 0 on both benchmark and spread; no rounding call."
+    },
+    {
+      "id": "RULE-09",
+      "title": "Minimum rate change threshold",
+      "kind": "rate",
+      "statement": "If abs(v_new - v_old) < 0.25, increment p_skipped and skip.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 66,
+        "end": 71
+      },
+      "confidence": 1,
+      "notes": "Numeric comparison; no rounding of v_new/v_old before comparison."
+    },
+    {
+      "id": "RULE-10",
+      "title": "Duplicate notice suppression",
+      "kind": "other",
+      "statement": "If a RESET_NOTICE entry already exists with note starting 'reset ' || v_next, increment p_skipped and skip.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 67,
+        "end": 71
+      },
+      "confidence": 1,
+      "notes": "Uses LIKE with wildcard after v_next; checks loan_ledger only."
+    },
+    {
+      "id": "RULE-11",
+      "title": "Insert reset notice",
+      "kind": "rate",
+      "statement": "Insert into loan_ledger: loan_id, v_notice as entry_date, 'RESET_NOTICE' as entry_type, v_new as amount, note = 'reset ' || v_next || ' from ' || v_old || ' to ' || v_new; then increment p_posted.",
+      "source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 73,
+        "end": 76
+      },
+      "confidence": 1,
+      "notes": "Amount column receives the new rate value; no explicit numeric precision declared on insert."
+    }
+  ],
+  "contradictions": [
+    {
+      "comment_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 10,
+        "end": 11
+      },
+      "code_source": {
+        "file": "rate_reset_notice_bundle.sql",
+        "start": 37,
+        "end": 71
+      },
+      "description": "Header states the procedure posts a RESET_NOTICE for every active floating-rate loan whose next reset falls inside the window; code additionally skips NPA loans, loans with change < 0.25, and duplicate notices, and raises on missing benchmark."
+    }
+  ],
+  "open_questions": [
+    "Is the extract(year/month) age calculation for reset cycles intended to ignore day-of-month differences?",
+    "Should v_new and v_old be rounded to a declared number of decimals before the 0.25 threshold test or before storage?",
+    "Is the weekend-only adjustment for v_notice (no holiday table) the intended calendar rule?"
+  ],
+  "citation_failures": []
+}
