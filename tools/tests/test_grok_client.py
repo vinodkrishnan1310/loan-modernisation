@@ -38,7 +38,7 @@ def _valid():
 def test_model_name_defaults_and_follows_env(monkeypatch):
     monkeypatch.delenv("GROK_MODEL", raising=False)
     assert model_name() == DEFAULT_MODEL
-    assert DEFAULT_MODEL == "grok-4.7"
+    assert DEFAULT_MODEL == "grok-4.3"
     monkeypatch.setenv("GROK_MODEL", "grok-test")
     assert model_name() == "grok-test"
 
@@ -67,7 +67,7 @@ def test_from_env_requires_key_and_targets_xai(monkeypatch):
     assert captured["base_url"] == XAI_BASE_URL
     assert captured["timeout"] == httpx_timeout()
     assert captured["api_key"] == os.environ["XAI_API_KEY"]
-    assert client.model == "grok-4.7"
+    assert client.model == "grok-4.3"
 
 
 def test_complete_sends_structured_output_and_validates():
@@ -79,10 +79,10 @@ def test_complete_sends_structured_output_and_validates():
         seen.update(kwargs)
         return _response(payload)
 
-    client = OpenAIGrokClient(create=create, model="grok-4.7", sleep=lambda _seconds: None)
+    client = OpenAIGrokClient(create=create, model="grok-4.3", sleep=lambda _seconds: None)
     result = client.complete(name="mismatch", schema=schema, system="system", user="user")
     assert result == payload
-    assert seen["model"] == "grok-4.7"
+    assert seen["model"] == "grok-4.3"
     assert seen["temperature"] == 0
     assert seen["timeout"] == httpx_timeout()
     assert seen["messages"] == [
@@ -104,7 +104,7 @@ def test_two_retries_then_grok_unavailable():
         calls["n"] += 1
         raise TimeoutError("timed out")
 
-    client = OpenAIGrokClient(create=create, model="grok-4.7", sleep=sleeps.append)
+    client = OpenAIGrokClient(create=create, model="grok-4.3", sleep=sleeps.append)
     with pytest.raises(GrokUnavailable, match="timed out"):
         client.complete(name="mismatch", schema=_schema(), system="s", user="u")
     assert calls["n"] == 3
@@ -118,7 +118,7 @@ def test_schema_mismatch_is_a_failed_call():
         calls["n"] += 1
         return _response({"label": "not-a-label"})
 
-    client = OpenAIGrokClient(create=create, model="grok-4.7", sleep=lambda _seconds: None)
+    client = OpenAIGrokClient(create=create, model="grok-4.3", sleep=lambda _seconds: None)
     with pytest.raises(GrokUnavailable, match="schema"):
         client.complete(name="mismatch", schema=_schema(), system="s", user="u")
     assert calls["n"] == 3
