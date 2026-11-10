@@ -1,1 +1,1 @@
-{"module_id":"rate_reset_notice","branch":"mod/rate-reset-notice","mode":"SINGLE_MODULE","stage":"converting","rules_commit":"b491dd847a0b58a3d04d1c04f7a96952fc2e1e38","rules":11,"contradictions":1,"open_questions":3,"citation_failures":0}
+{"module_id": "rate_reset_notice", "branch": "mod/rate-reset-notice", "mode": "SINGLE_MODULE", "stage": "parity", "rules_commit": "b491dd847a0b58a3d04d1c04f7a96952fc2e1e38", "rules": 11, "contradictions": 1, "open_questions": 3, "citation_failures": 0, "pr": 9, "pr_head": "627f05b0b31ae6c81a5a6b884cadabebb63903f6"}
