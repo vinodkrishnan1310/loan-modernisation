@@ -1,0 +1,155 @@
+{
+  "module": "lms.sp_prepayment_quote",
+  "rules": [
+    {
+      "id": "RULE-01",
+      "title": "Loan existence and status validation",
+      "kind": "error_handling",
+      "statement": "Raises LMS-001 if loan not found; raises LMS-021 if status is not ACTIVE.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 30,
+        "end": 36
+      },
+      "confidence": 1,
+      "notes": "Uses exact status comparison <> 'ACTIVE'"
+    },
+    {
+      "id": "RULE-02",
+      "title": "Quote date validation",
+      "kind": "error_handling",
+      "statement": "Raises LMS-002 if p_quote_date is before v_loan.disb_date.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 37,
+        "end": 39
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-03",
+      "title": "Principal outstanding amount",
+      "kind": "other",
+      "statement": "Sets o_principal to coalesce(v_loan.principal_outstanding, v_loan.principal_disbursed).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 42,
+        "end": 42
+      },
+      "confidence": 1,
+      "notes": "Handles missing outstanding value via coalesce"
+    },
+    {
+      "id": "RULE-04",
+      "title": "Interest rate selection",
+      "kind": "rate",
+      "statement": "Uses v_loan.fixed_rate_pct when rate_type='FIXED'; otherwise uses latest benchmark_rate.rate_pct on or before quote date plus spread_pct (coalesce to 0 if missing).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 45,
+        "end": 50
+      },
+      "confidence": 1,
+      "notes": "No declared precision on v_rate numeric"
+    },
+    {
+      "id": "RULE-05",
+      "title": "Accrual day count and rounding",
+      "kind": "accrual",
+      "statement": "Computes days as greatest(quote_date - coalesce(last_run_date, disb_date), 0); adds to accrued_interest the value round(principal * rate/100 * days / (365 if day_count='ACT365' else 360), 2).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 53,
+        "end": 56
+      },
+      "confidence": 1,
+      "notes": "Single round to 2 decimals at end; day_count checked only for ACT365"
+    },
+    {
+      "id": "RULE-06",
+      "title": "Penal interest passthrough",
+      "kind": "penal_interest",
+      "statement": "Sets o_penal directly to v_loan.accrued_penal with no further calculation.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 57,
+        "end": 57
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-07",
+      "title": "Outstanding fees passthrough",
+      "kind": "fee",
+      "statement": "Sets o_fees directly to v_loan.fees_outstanding with no further calculation.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 58,
+        "end": 58
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-08",
+      "title": "Prepayment fee eligibility and calculation",
+      "kind": "prepayment",
+      "statement": "Sets o_prepay_fee to 0; computes v_left as tenor_months minus full months since disb_date; if rate_type='FIXED' and prepay_fee_pct is not null and v_left > 3 then sets round(principal * prepay_fee_pct / 100, 2).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 61,
+        "end": 67
+      },
+      "confidence": 1,
+      "notes": "Rounding to 2 decimals; uses extract(year/month from age) for month count"
+    },
+    {
+      "id": "RULE-09",
+      "title": "GST on fees and prepay fee",
+      "kind": "fee",
+      "statement": "Sets o_gst to round((o_prepay_fee + o_fees) * 18 / 100, 2).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 69,
+        "end": 69
+      },
+      "confidence": 1,
+      "notes": "Hard-coded 18% rate; rounding to 2 decimals"
+    },
+    {
+      "id": "RULE-10",
+      "title": "Total payoff amount",
+      "kind": "other",
+      "statement": "Sets o_total to greatest(principal + interest + penal + fees + prepay_fee + gst - advance_balance, 0).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 70,
+        "end": 71
+      },
+      "confidence": 1,
+      "notes": "Coalesce not used on advance_balance"
+    },
+    {
+      "id": "RULE-11",
+      "title": "Quote validity period",
+      "kind": "other",
+      "statement": "Sets o_valid_until to p_quote_date + 2 (no calendar adjustment).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 72,
+        "end": 72
+      },
+      "confidence": 1,
+      "notes": null
+    }
+  ],
+  "contradictions": [],
+  "open_questions": [
+    "Confirm that advance_balance is subtracted without coalesce and that negative result is forced to zero.",
+    "Confirm that no holiday or calendar adjustment is applied to the +2 day validity or to day counts.",
+    "Confirm that GST rate remains hard-coded at 18% and applies only to prepay_fee + fees."
+  ],
+  "citation_failures": []
+}
