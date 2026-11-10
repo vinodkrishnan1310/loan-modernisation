@@ -20,3 +20,9 @@ rules/loan_eod.rules.json
 legacy/incoming/prepayment_quote_bundle.sql
 legacy/incoming/rate_reset_notice_bundle.sql
 legacy/incoming/loan_eod_bundle.sql
+
+# Run state written by the Programme Lead; the release promote copies it onto main
+state/approvals.json
+state/rate_reset_notice.json
+state/prepayment_quote.json
+state/loan_eod.json

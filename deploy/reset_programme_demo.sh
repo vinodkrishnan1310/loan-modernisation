@@ -11,6 +11,9 @@
 #   bash deploy/reset_programme_demo.sh --api --no-replay-baseline   # do not strip/push main
 #   bash deploy/reset_programme_demo.sh --replay-baseline            # strip main without other steps' git pull order change
 #
+# Order matters: main is stripped (git rm, commit, push) before the local working files are wiped,
+# so the tree is not left dirty when the strip runs.
+#
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -35,16 +38,6 @@ fi
 
 echo "== demo loans 9001–9004 =="
 bash deploy/reset_demo.sh
-
-echo "== programme working files =="
-rm -f rules/*.rules.json rules/*.rules.json.backup 2>/dev/null || true
-rm -rf evidence/* 2>/dev/null || true
-mkdir -p evidence rules
-rm -f legacy/incoming/*.sql 2>/dev/null || true
-mkdir -p legacy/incoming
-touch legacy/incoming/.gitkeep
-rm -f state/*.json 2>/dev/null || true
-mkdir -p state
 
 if $reset_git; then
   echo "== git branches (delete all except main, local + origin) =="
@@ -87,6 +80,16 @@ if $replay_baseline; then
   echo "== replay baseline on main (strip conversion, push origin) =="
   bash deploy/strip_replay_baseline.sh
 fi
+
+echo "== programme working files =="
+rm -f rules/*.rules.json rules/*.rules.json.backup 2>/dev/null || true
+rm -rf evidence/* 2>/dev/null || true
+mkdir -p evidence rules
+rm -f legacy/incoming/*.sql 2>/dev/null || true
+mkdir -p legacy/incoming
+touch legacy/incoming/.gitkeep
+rm -f state/*.json 2>/dev/null || true
+mkdir -p state
 
 if $reset_api; then
   echo "== api ENGINE=legacy =="

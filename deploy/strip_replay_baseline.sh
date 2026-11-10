@@ -42,19 +42,37 @@ git checkout main 2>/dev/null || git checkout -f main
 git pull --ff-only origin main 2>/dev/null \
   || echo "warn: git pull origin main failed (offline?); using local main" >&2
 
-if [ -n "$(git status --porcelain)" ]; then
-  echo "strip_replay_baseline: working tree is not clean; stash or commit first" >&2
-  git status --short >&2
-  exit 1
-fi
-
-removed=()
+# Read the manifest once.
+paths=()
 while IFS= read -r path || [ -n "${path:-}" ]; do
   path="${path%%#*}"
   path="${path#"${path%%[![:space:]]*}"}"
   path="${path%"${path##*[![:space:]]}"}"
   [ -n "$path" ] || continue
+  paths+=("$path")
+done < "$MANIFEST"
 
+# The tree may already show the manifest paths as modified or deleted (reset_programme_demo.sh
+# wipes working files). That is fine because they are about to be removed. Anything else dirty
+# is a real problem.
+dirty=()
+while IFS= read -r line; do
+  [ -n "$line" ] || continue
+  f="${line:3}"
+  skip=false
+  for p in "${paths[@]}"; do
+    if [ "$f" = "$p" ]; then skip=true; break; fi
+  done
+  $skip || dirty+=("$line")
+done < <(git status --porcelain)
+if [ "${#dirty[@]}" -gt 0 ]; then
+  echo "strip_replay_baseline: working tree is not clean; stash or commit first" >&2
+  printf '%s\n' "${dirty[@]}" >&2
+  exit 1
+fi
+
+removed=()
+for path in "${paths[@]}"; do
   if git ls-files --error-unmatch "$path" >/dev/null 2>&1; then
     if $dry_run; then
       echo "  would git rm: $path"
@@ -72,7 +90,7 @@ while IFS= read -r path || [ -n "${path:-}" ]; do
     rm -f -- "$path"
     removed+=("$path")
   fi
-done < "$MANIFEST"
+done
 
 if [ "${#removed[@]}" -eq 0 ]; then
   echo "replay baseline already clean on main"
