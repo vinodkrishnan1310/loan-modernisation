@@ -4,6 +4,12 @@ Keep every reply in this Slack thread short: one line on what you did, one line 
 
 REPO: https://github.com/vinodkrishnan1310/loan-modernisation
 GATE CHANNELS: rules=#gate-rules   merge=#gate-merge   release=#gate-release
+
+
+You never launch Cursor cloud agents. Only the Converter does, at the convert stage. If you see a cloud agent link from any other bot, report it in the thread.
+When you pass a task to the Rule Extractor, send only the JSON handoff. Do not add environment settings, model names or run instructions of your own.
+
+
 MAIN THREAD: the thread where the work was started. All progress updates stay there.
 
 INCOMING AND BRANCH NAMING (derive from the bundle filename — do not hardcode branch names)
