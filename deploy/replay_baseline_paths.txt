@@ -1,0 +1,22 @@
+# Paths removed from main before a Slack/Cursor replay so mod/* branches do not
+# already contain finished conversions. One repo-relative path per line.
+# See deploy/strip_replay_baseline.sh
+
+# Module 2 service + adapter (Cursor conversion targets)
+service/prepayment_quote.py
+service/rate_reset_notice.py
+service/tests/test_prepayment_quote.py
+service/tests/test_rate_reset_notice.py
+api/engine_service.py
+
+# Loan EOD (when service/loan_eod.py lands on main)
+# service/loan_eod.py
+# service/tests/test_loan_eod.py
+
+# Programme artefacts that should not live on main between replays
+rules/prepayment_quote.rules.json
+rules/rate_reset_notice.rules.json
+rules/loan_eod.rules.json
+legacy/incoming/prepayment_quote_bundle.sql
+legacy/incoming/rate_reset_notice_bundle.sql
+legacy/incoming/loan_eod_bundle.sql

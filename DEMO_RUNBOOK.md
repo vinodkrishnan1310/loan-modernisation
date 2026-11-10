@@ -95,6 +95,7 @@ python3 scripts/branch_from_bundle.py prepayment_quote_bundle.sql
 ## 2. Full reset (start every rehearsal / live demo)
 
 Wipes **DB loans**, **local** rules/evidence, and **all git branches except `main`** on GitHub (mod, cursor, evidence, …).
+With **`--api`**, also **strips module conversion files from `main` and pushes** so Cursor has real work on new `mod/*` branches (`deploy/strip_replay_baseline.sh`, manifest `deploy/replay_baseline_paths.txt`).
 
 ```bash
 cd /path/to/modernisation-kit
@@ -105,9 +106,11 @@ cp rules/*.rules.json presenter/rule-backups/ 2>/dev/null || true
 bash deploy/reset_programme_demo.sh --api
 ```
 
-Skip git cleanup only: `bash deploy/reset_programme_demo.sh --api --no-git`
+Skip git cleanup only: `bash deploy/reset_programme_demo.sh --api --no-git`  
+Skip main strip/push (keep conversions on `main`): `bash deploy/reset_programme_demo.sh --api --no-replay-baseline`  
+Dry-run strip only: `bash deploy/strip_replay_baseline.sh --dry-run`
 
-Confirm: `git branch -r` shows only `origin/main`; API health OK on legacy engine.
+Confirm: `git branch -r` shows only `origin/main`; `main` has no `service/*_quote.py` / `service/rate_reset_notice.py` / `api/engine_service.py`; API health OK on legacy engine.
 
 ---
 

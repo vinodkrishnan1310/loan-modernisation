@@ -1,25 +1,37 @@
 #!/usr/bin/env bash
 # Reset laptop + programme artefacts for a fresh Slack playbook replay.
 # By default deletes every local and remote branch except main (mod/*, cursor/*, evidence/*, …).
-# Does not change main or delete Docker volumes.
+# With --api, also strips module conversion outputs from main and pushes (see --replay-baseline).
+# Does not delete Docker volumes.
 #
 #   bash deploy/reset_programme_demo.sh              # local + delete all non-main branches on origin
-#   bash deploy/reset_programme_demo.sh --api        # above + ENGINE=legacy api container
+#   bash deploy/reset_programme_demo.sh --api        # above + replay baseline on main + ENGINE=legacy api
 #   bash deploy/reset_programme_demo.sh --no-git     # skip git branch cleanup (laptop only)
 #   bash deploy/reset_programme_demo.sh --api --no-git
+#   bash deploy/reset_programme_demo.sh --api --no-replay-baseline   # do not strip/push main
+#   bash deploy/reset_programme_demo.sh --replay-baseline            # strip main without other steps' git pull order change
 #
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 reset_api=false
 reset_git=true
+replay_baseline=false
+replay_baseline_explicit=false
 for arg in "$@"; do
   case "$arg" in
     --api) reset_api=true ;;
     --no-git) reset_git=false ;;
-    *) echo "unknown option: $arg (try --api, --no-git)" >&2; exit 2 ;;
+    --replay-baseline) replay_baseline=true; replay_baseline_explicit=true ;;
+    --no-replay-baseline) replay_baseline=false; replay_baseline_explicit=true ;;
+    *) echo "unknown option: $arg (try --api, --no-git, --replay-baseline, --no-replay-baseline)" >&2; exit 2 ;;
   esac
 done
+
+# B5 bot replay needs origin/main without finished conversions when the API is reset.
+if $reset_api && ! $replay_baseline_explicit; then
+  replay_baseline=true
+fi
 
 echo "== demo loans 9001–9004 =="
 bash deploy/reset_demo.sh
@@ -69,6 +81,11 @@ if $reset_git; then
   git pull --ff-only origin main 2>/dev/null || echo "warn: git pull main failed" >&2
 else
   echo "== git: skipped (--no-git) =="
+fi
+
+if $replay_baseline; then
+  echo "== replay baseline on main (strip conversion, push origin) =="
+  bash deploy/strip_replay_baseline.sh
 fi
 
 if $reset_api; then

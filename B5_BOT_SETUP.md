@@ -43,7 +43,7 @@ Enable GitHub and shell/code tools so specialists can clone, run Python, commit,
 bash deploy/reset_programme_demo.sh --api
 ```
 
-This resets loans, local rules/evidence, and deletes **all branches except `main`** on origin and locally (use `--no-git` to skip branch cleanup).
+This resets loans, local rules/evidence, deletes **all branches except `main`** on origin and locally, and **removes module conversion outputs from `main` and pushes** (so the Converter Cloud Agent is not a no-op). Use `--no-git` to skip branch cleanup; `--no-replay-baseline` to leave `main` unchanged.
 
 In Slack (do **not** run `extract.py` locally):
 
