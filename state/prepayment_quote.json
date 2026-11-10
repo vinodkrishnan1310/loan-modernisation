@@ -1,0 +1,1 @@
+{"module_id":"prepayment_quote","mode":"SINGLE_MODULE","branch":"mod/prepayment-quote","stage":"extract_rules","file":"legacy/incoming/prepayment_quote_bundle.sql","rules":"rules/prepayment_quote.rules.json","prompt_file":"prompts/cursor/run_d_prepayment_quote.md"}
