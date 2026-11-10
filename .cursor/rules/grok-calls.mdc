@@ -3,7 +3,7 @@ description: How code in this repo calls the Grok API
 alwaysApply: true
 ---
 - Call Grok with the OpenAI Python SDK: `OpenAI(api_key=os.environ["XAI_API_KEY"], base_url="https://api.x.ai/v1")`.
-- The model name comes from the environment variable `GROK_MODEL`. Default `grok-4.7`.
+- The model name comes from the environment variable `GROK_MODEL`. Default `grok-4.3`.
 - Always use structured output:
   `response_format={"type": "json_schema", "json_schema": {"name": <name>, "schema": <loaded from schemas/>, "strict": True}}`.
   Load the schema from the file in `schemas/`. Never keep a second copy in code.
