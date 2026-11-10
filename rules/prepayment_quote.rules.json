@@ -1,0 +1,143 @@
+{
+  "module": "lms.sp_prepayment_quote",
+  "rules": [
+    {
+      "id": "RULE-01",
+      "title": "Loan existence and status check",
+      "kind": "error_handling",
+      "statement": "Raises LMS-001 if loan row not found; raises LMS-021 if status is not ACTIVE.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 30,
+        "end": 36
+      },
+      "confidence": 1,
+      "notes": "Uses exact status string comparison."
+    },
+    {
+      "id": "RULE-02",
+      "title": "Quote date validation",
+      "kind": "error_handling",
+      "statement": "Raises LMS-002 if p_quote_date is before v_loan.disb_date.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 37,
+        "end": 39
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-03",
+      "title": "Principal outstanding amount",
+      "kind": "other",
+      "statement": "Sets o_principal to coalesce(v_loan.principal_outstanding, v_loan.principal_disbursed).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 42,
+        "end": 42
+      },
+      "confidence": 1,
+      "notes": "Handles missing outstanding value by falling back to disbursed."
+    },
+    {
+      "id": "RULE-04",
+      "title": "Interest rate selection",
+      "kind": "rate",
+      "statement": "If rate_type=FIXED uses fixed_rate_pct; else uses latest benchmark_rate.rate_pct on or before quote_date plus spread_pct (coalesce to 0 if either missing).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 45,
+        "end": 50
+      },
+      "confidence": 1,
+      "notes": "Benchmark lookup returns 0 when no row matches."
+    },
+    {
+      "id": "RULE-05",
+      "title": "Accrued interest calculation",
+      "kind": "accrual",
+      "statement": "Computes v_days as greatest(p_quote_date - coalesce(last_run_date, disb_date), 0); adds round(o_principal * v_rate / 100 * v_days / (365 if day_count=ACT365 else 360), 2) to v_loan.accrued_interest.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 53,
+        "end": 56
+      },
+      "confidence": 1,
+      "notes": "Single rounding to 2 decimals; missing day_count treated as 360."
+    },
+    {
+      "id": "RULE-06",
+      "title": "Penal interest and fees passthrough",
+      "kind": "penal_interest",
+      "statement": "o_penal set to v_loan.accrued_penal; o_fees set to v_loan.fees_outstanding.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 57,
+        "end": 58
+      },
+      "confidence": 1,
+      "notes": null
+    },
+    {
+      "id": "RULE-07",
+      "title": "Prepayment fee eligibility and amount",
+      "kind": "prepayment",
+      "statement": "v_left computed via extract(year/month from age(p_quote_date, disb_date)); if rate_type=FIXED and prepay_fee_pct not null and v_left > 3 then o_prepay_fee = round(o_principal * prepay_fee_pct / 100, 2) else 0.",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 61,
+        "end": 67
+      },
+      "confidence": 1,
+      "notes": "Uses age() for month difference; rounding to 2 decimals declared."
+    },
+    {
+      "id": "RULE-08",
+      "title": "GST on fees",
+      "kind": "fee",
+      "statement": "o_gst = round((o_prepay_fee + o_fees) * 18 / 100, 2).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 69,
+        "end": 69
+      },
+      "confidence": 1,
+      "notes": "Hard-coded 18% rate; rounding to 2 decimals."
+    },
+    {
+      "id": "RULE-09",
+      "title": "Total payoff amount",
+      "kind": "billing",
+      "statement": "o_total = greatest(o_principal + o_interest + o_penal + o_fees + o_prepay_fee + o_gst - v_loan.advance_balance, 0).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 70,
+        "end": 71
+      },
+      "confidence": 1,
+      "notes": "Advance balance subtracted; floor at zero."
+    },
+    {
+      "id": "RULE-10",
+      "title": "Quote validity period",
+      "kind": "other",
+      "statement": "o_valid_until set to p_quote_date + 2 (no calendar adjustment).",
+      "source": {
+        "file": "prepayment_quote_bundle.sql",
+        "start": 72,
+        "end": 72
+      },
+      "confidence": 1,
+      "notes": null
+    }
+  ],
+  "contradictions": [],
+  "open_questions": [
+    "Is the age()-based month count in v_left (lines 62-64) the intended definition of 'last 3 months of the tenor'?",
+    "Should missing benchmark_rate rows produce rate 0 (line 49) or raise an error?",
+    "Is treating missing day_count as 360 (line 56) the desired fallback?",
+    "Confirm that no holiday or calendar adjustment is required for the +2 day validity (line 72)."
+  ],
+  "citation_failures": []
+}
