@@ -1,0 +1,11 @@
+[
+ {
+  "gate": "rules",
+  "module_id": "rate_reset_notice",
+  "rules_commit": "61ef7c5b7ca237cd7330adb2a772d142428f0daf",
+  "approved_by": "Vinod Krishnan",
+  "phrase": "APPROVE RULES rate_reset_notice",
+  "ts": "2026-11-11T06:32:30+05:30",
+  "link": "https://vinodkrishnan13.slack.com/archives/C0CFST84H89/p1794358950718659?thread_ts=1794358801.751439"
+ }
+]
