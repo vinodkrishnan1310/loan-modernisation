@@ -9,7 +9,7 @@ alwaysApply: true
 - The HTTP contract in `api/contract/openapi.json` must not change. `pytest api/tests` must pass.
 - Before you open a pull request:
   1. `pytest` passes.
-  2. `python parity/parity.py --module service/loan_eod.py` has been run, and its summary line is in the PR description.
+  2. The parity command given in the task prompt has been run, and its summary line is in the PR description.
 - PR title starts with `[conversion]`, `[tool]` or `[label]`. PR body has four headings:
   What changed, Tests run, Parity result, Open questions.
 - Do not stop at the first failing parity case. Report every difference you could not explain under Open questions.

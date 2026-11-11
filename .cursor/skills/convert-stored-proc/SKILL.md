@@ -19,6 +19,6 @@ the recorded cases in `golden/`, and the existing API in `api/`.
    - never creates or alters any database object.
 5. Leave `api/main.py`, the response models and `api/contract/openapi.json` unchanged. The `ENGINE` flag already selects the engine.
 6. Add tests: a pytest that replays every case in `golden/` through `process_loan`, and one test for the adapter with a fake connection.
-7. Run `pytest`, then `python parity/parity.py --module service/loan_eod.py`. Put the summary line in the PR.
+7. Run `pytest`, then the parity command given in the task prompt. Put the summary line in the PR.
    Do not change `golden/` to make a case pass. Do not special-case a case id.
 8. Open a pull request titled `[conversion] loan end-of-day service`.
