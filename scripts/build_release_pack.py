@@ -87,8 +87,15 @@ L.append("## 4. Approval trail\n")
 if approvals:
     L.append("| Gate | Approved by | When | Reference |")
     L.append("|---|---|---|---|")
+    def pick(item, *keys):
+        # The Programme Lead writes approver / ts / link; older records use by / at / ref. Accept both.
+        for k in keys:
+            if item.get(k) not in (None, ""):
+                return str(item[k])
+        return ""
+
     for x in approvals:
-        L.append(f"| {x.get('gate','')} | {x.get('by','')} | {x.get('at','')} | {x.get('ref','')} |")
+        L.append(f"| {pick(x, 'gate')} | {pick(x, 'approver', 'by')} | {pick(x, 'ts', 'at')} | {pick(x, 'link', 'ref')} |")
     L.append("")
 else:
     L.append("No approvals recorded yet.\n")
