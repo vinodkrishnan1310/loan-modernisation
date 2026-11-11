@@ -1,0 +1,98 @@
+[
+ {
+  "case_id": "N01",
+  "scenario": "only_fixed_loans",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N02",
+  "scenario": "change_exactly_025",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N03",
+  "scenario": "change_too_small",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N04",
+  "scenario": "reset_outside_window",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N05",
+  "scenario": "notice_day_rolls",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N06",
+  "scenario": "benchmark_on_reset_day",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N07",
+  "scenario": "npa_loan_skipped",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N08",
+  "scenario": "already_noticed",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N09",
+  "scenario": "window_too_large",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N10",
+  "scenario": "floating_without_bench",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N11",
+  "scenario": "mixed_book",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N12",
+  "scenario": "no_spread",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N13",
+  "scenario": "six_month_reset",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N14",
+  "scenario": "month_end_30th",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N15",
+  "scenario": "month_end_leap",
+  "status": "MATCH",
+  "diffs": []
+ },
+ {
+  "case_id": "N16",
+  "scenario": "reset_on_friday",
+  "status": "MATCH",
+  "diffs": []
+ }
+]
