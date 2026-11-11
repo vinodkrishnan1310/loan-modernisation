@@ -10,5 +10,18 @@
   "at": "2026-11-11T08:26:22+05:30",
   "rules_commit": "f5d5257",
   "note": "reply in Slack code formatting; text matched exactly"
+ },
+ {
+  "gate": "merge",
+  "module_id": "rate_reset_notice",
+  "phrase": "MERGED 18",
+  "by": "Vinod Krishnan",
+  "slack_user": "U0477GFKP9T",
+  "channel": "C0CFJPTNK6F",
+  "ts": "1794366250.622859",
+  "at": "2026-11-11T08:34:10+05:30",
+  "pr": 18,
+  "merge_commit": "5c4c91c36ba65ecc211bfdf5f163cc774d5541f6",
+  "note": "reply in Slack code formatting; text matched exactly"
  }
 ]
